@@ -35,16 +35,17 @@ io.sockets.on('connection', function(socket){
 
     //New User
     socket.on('new user', function(data, callback){
-        callback(true);
-
         if(users.includes(data)){
             socket.emit("user already exists", "The current username already exists. Choose another one instead.");
+            callback(false);
+            return;
         }
 
         socket.username = data;
         users.push(socket.username);
         updateUsers();
         notifyUserConnected(socket.username);
+        callback(true);
     });
 
     function updateUsers(){
@@ -73,6 +74,7 @@ io.sockets.on('connection', function(socket){
             var whisper_socket = connections.find(socket => socket.username === username);
             if(whisper_socket){
                 whisper_socket.emit('new message whisper', {msg:data, user:socket.username, timestamp:timestamp});
+                socket.emit('new message whisper', {msg:data, user:socket.username, timestamp:timestamp});
             }
         }else{
             sendMessageToAllUsers(data, timestamp);

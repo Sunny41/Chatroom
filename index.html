@@ -91,6 +91,10 @@
 
                     $users.html(html);
                 });
+
+                socket.on('user already exists', function(data){
+                    console.log(data);
+                });
             });
 
             
