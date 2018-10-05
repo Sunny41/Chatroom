@@ -1,16 +1,23 @@
 {
-  "name": "socket.io-chat",
-  "version": "0.0.0",
-  "description": "A simple chat client using socket.io",
+  "name": "chatroom",
+  "version": "1.0.0",
+  "description": "Simple chat app",
   "main": "index.js",
-  "author": "Grant Timmerman",
-  "private": true,
-  "license": "BSD",
-  "dependencies": {
-    "express": "4.13.4",
-    "socket.io": "^2.1.1"
-  },
   "scripts": {
-    "start": "node index.js"
-  }
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sunny41/Chatroom.git"
+  },
+  "dependencies": {
+    "socket.io": "*",
+    "express": "*"
+  },
+  "author": "Sonja, Jannik",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/Sunny41/Chatroom/issues"
+  },
+  "homepage": "https://github.com/Sunny41/Chatroom#readme"
 }
