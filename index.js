@@ -18,16 +18,17 @@ io.sockets.on('connection', function(socket){
     console.log('Connected: %s sockets connected', connections.length);
 
     //Disconnect
-    socket.on('disconnection', function(data){
+    socket.on('disconnect', function(data){
         users.splice(users.indexOf(socket.username), 1);
         updateUsers();
         connections.splice(connections.indexOf(socket), 1);
+        notifyUserDisconnected(socket.username);
         console.log('Disconnected: %s sockets connected', connections.length);
     });
 
     //Send message
     socket.on('send message', function(data){
-        io.sockets.emit('new message', {msg:data, user:socket.username});
+        parseMessage(data, socket);
     });
 
     //New User
@@ -36,9 +37,38 @@ io.sockets.on('connection', function(socket){
         socket.username = data;
         users.push(socket.username);
         updateUsers();
+        notifyUserConnected(socket.username);
     });
 
     function updateUsers(){
         io.sockets.emit('get users', users);
+    }
+
+    function notifyUserConnected(username){
+        io.sockets.emit('user connected', "User: " + username + " entered the room.");
+    }
+
+    function notifyUserDisconnected(username){
+        io.sockets.emit('user disconnected', "User: " + username + " left the room.");
+    }
+
+    function sendMessageToAllUsers(data, timestamp){
+        io.sockets.emit('new message', {msg:data, user:socket.username, timestamp:timestamp});
+    }
+
+    function parseMessage(data, socket){
+        var timestamp = new Date().getHours() + ":" + new Date().getMinutes();
+
+        if(data.startsWith("/list")){
+            socket.emit('new message list', {users:users});
+        }else if(data.startsWith("/whisper")){
+            var username = data.username;
+            var whisper_socket = connections.find(socket => socket.username === username);
+            if(whisper_socket){
+                whisper_socket.emit('new message whisper', {msg:data, user:socket.username, timestamp:timestamp});
+            }
+        }else{
+            sendMessageToAllUsers(data, timestamp);
+        }
     }
 });
