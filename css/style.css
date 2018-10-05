@@ -1,0 +1,14 @@
+body{
+    margin-top: 30px;
+    color: whitesmoke;
+    background: url("../bg.jpg") no-repeat center center fixed;
+}
+
+.chat{
+    color: whitesmoke;
+    background-color: rgba(0,0,0,0.5);
+}
+.btn{
+    color: whitesmoke;
+    background-color: gray;
+}
