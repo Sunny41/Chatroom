@@ -3,6 +3,8 @@ var app = express();
 var server = require('http').createServer(app);
 var io = require('socket.io').listen(server);
 
+app.use(express.static(__dirname + '/'));
+
 users = [];
 connections = [];
 
@@ -36,7 +38,7 @@ io.sockets.on('connection', function(socket){
         callback(true);
 
         if(users.includes(data)){
-            socket.emit("user already exists", "The current username already exists. Choos another one instead.");
+            socket.emit("user already exists", "The current username already exists. Choose another one instead.");
         }
 
         socket.username = data;
