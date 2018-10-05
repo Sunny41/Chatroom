@@ -34,6 +34,11 @@ io.sockets.on('connection', function(socket){
     //New User
     socket.on('new user', function(data, callback){
         callback(true);
+
+        if(users.includes(data)){
+            socket.emit("user already exists", "The current username already exists. Choos another one instead.");
+        }
+
         socket.username = data;
         users.push(socket.username);
         updateUsers();
