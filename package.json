@@ -12,8 +12,9 @@
     "url": "git+https://github.com/Sunny41/Chatroom.git"
   },
   "dependencies": {
-    "socket.io": "*",
-    "express": "*"
+    "bootstrap": "^4.1.3",
+    "express": "*",
+    "socket.io": "*"
   },
   "author": "Sonja, Jannik",
   "license": "UNLICENSED",
