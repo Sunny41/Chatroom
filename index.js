@@ -2,17 +2,20 @@ var express = require('express');
 var app = express();
 var server = require('http').createServer(app);
 var io = require('socket.io').listen(server);
+var fs = require('fs');
+var path = require('path');
 
 app.use(express.static(__dirname + '/'));
 
-users = [];
-connections = [];
+var users = [];
+var connections = [];
+var Files = {};
 
 server.listen(process.env.PORT || 3000);
 console.log('Server running');
 
-app.get('/', function(req, res){
-    res.sendFile(__dirname + '/index.html');
+app.get('/upload', function(req, res){
+    res.sendFile(__dirname + '/upload.html');
 });
 
 io.sockets.on('connection', function(socket){
@@ -46,6 +49,18 @@ io.sockets.on('connection', function(socket){
         updateUsers();
         notifyUserConnected(socket.username);
         callback(true);
+    });
+
+    //File upload
+    socket.on('upload file', function(msg){
+        //Send the file to all sockets
+        io.sockets.emit('send file', 
+            {
+              username: socket.username,
+              file: msg.file,
+              fileName: msg.fileName
+            }    
+        );
     });
 
     function updateUsers(){
