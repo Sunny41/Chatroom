@@ -12,18 +12,26 @@ body{
     text-align: center;
     margin-top: 10%;
     background-color: rgba(0,0,0,0.5);
-    padding-bottom: 10%;
-    padding-top: 10%;
+    padding-bottom: 5%;
+    padding-top: 5%;
     color:black;
 }
 
 #chatArea{
     padding-left:5%;
     padding-right:5%;
+    word-wrap: break-word;
+}
+#messageArea{
+    color: whitesmoke;
+    position: fixed;
+    bottom:0;
 }
 
-.btn{
-    background-color: #64a19d;
+#messages{
+    color: whitesmoke;
+    overflow-y: scroll;
+    max-height: 80vh;
 }
 
 @font-face{
@@ -33,18 +41,63 @@ body{
 
 #greeting{
     font-family: Sophia;
-    font-size: 500%;
+    font-size: 900%;
+    color: whitesmoke;
 }
 
 #messages {
-    background-color: yellow;
-    height:100%;
+    margin-top: 5%;
+    min-height: 80vh;
+    max-height: 80vh;
+    background-color: rgba(0,0,0,0.5);
+}
+#message{
+    color: black;
+}
+#sendbtn{
+    font-size: 50px;
+    height: 50px;
+    width: 50px;
+    background-image: url("../img/ui/send_btn.png");
+    background-size: 50px;
+    background-color: rgba(0,0,0,0);
+    background-repeat: no-repeat;
+    background-position: center;
+    border-radius: 50%;
 }
 
+#filebtn{
+    font-size: 50px;
+    height: 50px;
+    width: 50px;
+    background-image: url("../img/ui/file_btn.png");
+    background-size: 50px;
+    background-color: rgba(0,0,0,0);
+    background-repeat: no-repeat;
+    background-position: center;
+    border-radius: 50%;
+}
+.btn{
+    background-color: rgba(94,194,209,1);
+}
 #onlineUser {
-    background-color: red;
+    background-color: rgba(0,0,0,0.5);
+    color: black;
+    font-family: "Times New Roman";
+    font-size: large;
+    min-height: 100vh;
+    max-height: 100vh;
 }
 
 .msg{
-    color:black;
+    color: whitesmoke;
+}
+h2{
+    color: whitesmoke;
+}
+h3{
+    font-family: Sophia;
+    color: whitesmoke;
+    font-size: 300%;
+    margin-top: 10%;
 }
