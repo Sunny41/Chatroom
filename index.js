@@ -52,13 +52,15 @@ io.sockets.on('connection', function(socket){
     });
 
     //File upload
-    socket.on('upload file', function(msg){
+    socket.on('upload file', function(data){
         //Send the file to all sockets
         io.sockets.emit('send file', 
             {
               username: socket.username,
-              file: msg.file,
-              fileName: msg.fileName
+              file: data.file,
+              fileName: data.fileName,
+              type: data.type,
+              size: data.size
             }    
         );
     });

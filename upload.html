@@ -19,7 +19,23 @@
             var SelectedFile;
             function FileChosen(evnt) {
                 SelectedFile = evnt.target.files[0];
-                document.getElementById('NameBox').value = SelectedFile.name;
+                var fileType = SelectedFile.type;
+
+                console.log(SelectedFile.name + " " + SelectedFile.type);
+                if(fileType.includes('image') || fileType.includes('audio') || fileType.includes('video')){
+                    document.getElementById('NameBox').value = SelectedFile.name;
+                }else {
+                    //Show error
+                    removeFile();
+                    alert('File type not supported to be sent');
+                }
+                
+            }
+
+            function removeFile(){
+                SelectedFile = null;
+                document.getElementById('FileBox').value = "";
+                document.getElementById('NameBox').value = "";
             }
 
             var socket = io.connect('http://localhost:3000');
@@ -28,14 +44,15 @@
             function StartUpload(){
                 if(document.getElementById('FileBox').value != "")
                 {
-
                     var reader = new FileReader();
                         reader.onload = function(evt){
-                            var msg ={};
-                            msg.username = 'jannik';
-                            msg.file = evt.target.result;
-                            msg.fileName = document.getElementById('NameBox').value;
-                            socket.emit('upload file', msg);
+                            var data ={};
+                            data.username = 'jannik';
+                            data.file = evt.target.result;
+                            data.fileName = document.getElementById('NameBox').value;
+                            data.type = SelectedFile.type;
+                            data.size = SelectedFile.size;
+                            socket.emit('upload file', data);
                         };
                         reader.readAsDataURL(SelectedFile);
                 }
@@ -45,14 +62,44 @@
                 }
             }
 
-            socket.on('send file', function (msg){
-                var elem = document.createElement("img");
-                elem.setAttribute("src", msg.file);
-                elem.setAttribute("height", "240");
-                elem.setAttribute("width", "240");
-                elem.setAttribute("alt", "wolf");
-                document.getElementById("image").appendChild(elem);
+            socket.on('send file', function (data){
+                var filenamePath = data.file;
+                var filenameDisplay = data.fileName;
+                var text = document.createTextNode(data.fileName);
+
+                var node;
+                node = document.createElement('a');
+                node.href = "javascript:download('data.file')";
+                node.appendChild(text);
+                /*
+                if(data.type.includes('image')){
+                    node = document.createElement('img');
+                    node.src = data.file;
+                    node.width = 240;
+                    node.height = 240; 
+                }
+                else if(data.type.includes('video')){
+                    node = document.createElement('video');
+                    node.src = data.file;
+                    node.autoplay = false;
+                    node.controls = true;
+                    node.height = 240;
+                    node.width = 240;
+                    
+                }else if(data.type.includes('audio')){
+                    node = document.createElement('audio');
+                    node.autoplay = false;
+                    node.controls = true;
+                }
+                */
+                document.getElementById('file').appendChild(node);
             });
+
+            function download(file)
+            {
+                ifrm = document.getElementById('iframe');
+                ifrm.src = file;
+            }
 
         </script>
         
@@ -69,7 +116,9 @@
             </span>
         </div>
 
-        <div id="image">
+        <iframe id="iframe" style="display:none;"></iframe>
+
+        <div id="file">
             
         </div>
     </body>
