@@ -82,19 +82,21 @@ io.sockets.on('connection', function(socket){
     }
 
     function parseMessage(data, socket){
-        var timestamp = new Date().getHours() + ":" + new Date().getMinutes();
+        if(data != ""){
+            var timestamp = new Date().getHours() + ":" + new Date().getMinutes();
 
-        if(data.startsWith("/list")){
-            socket.emit('new message list', {users:users});
-        }else if(data.startsWith("/whisper")){
-            var username = data.username;
-            var whisper_socket = connections.find(socket => socket.username === username);
-            if(whisper_socket){
-                whisper_socket.emit('new message whisper', {msg:data, user:socket.username, timestamp:timestamp});
-                socket.emit('new message whisper', {msg:data, user:socket.username, timestamp:timestamp});
+            if(data.startsWith("/list")){
+                socket.emit('new message list', {users:users});
+            }else if(data.startsWith("/whisper")){
+                var username = data.username;
+                var whisper_socket = connections.find(socket => socket.username === username);
+                if(whisper_socket){
+                    whisper_socket.emit('new message whisper', {msg:data, user:socket.username, timestamp:timestamp});
+                    socket.emit('new message whisper', {msg:data, user:socket.username, timestamp:timestamp});
+                }
+            }else{
+                sendMessageToAllUsers(data, timestamp);
             }
-        }else{
-            sendMessageToAllUsers(data, timestamp);
         }
     }
 });

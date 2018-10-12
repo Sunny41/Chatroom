@@ -16,6 +16,8 @@
                 }
             }
 
+            var files = [];
+            var pos;
             var SelectedFile;
             function FileChosen(evnt) {
                 SelectedFile = evnt.target.files[0];
@@ -63,15 +65,21 @@
             }
 
             socket.on('send file', function (data){
+                files.push(data);
                 var filenamePath = data.file;
                 var filenameDisplay = data.fileName;
                 var text = document.createTextNode(data.fileName);
 
                 var node;
                 node = document.createElement('a');
-                node.href = "javascript:download('data.file')";
+
+                pos = files.map(function(e) { return e; }).indexOf(data);
+                console.log(pos);
+                node.href = files[pos].file; //"javascript:download();";
+                node.download = files[pos].fileName;
                 node.appendChild(text);
-                /*
+
+                    /*
                 if(data.type.includes('image')){
                     node = document.createElement('img');
                     node.src = data.file;
@@ -95,10 +103,11 @@
                 document.getElementById('file').appendChild(node);
             });
 
-            function download(file)
+            function download()
             {
+                console.log("DOWNLOAD STARTED " + files[pos].fileName);
                 ifrm = document.getElementById('iframe');
-                ifrm.src = file;
+                ifrm.src = files[pos].file;
             }
 
         </script>
