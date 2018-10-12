@@ -1,0 +1,16 @@
+Appname:
+- monkey
+- whatsup
+- piggy
+
+Sonja:
+- Multimedia content
+- Frontend: design
+- Mockups
+- Präzi
+
+Jannik:
+- Multimedia content
+- Sequenzdiagramm
+- Klassendiagramm
+- Lesson learnt
