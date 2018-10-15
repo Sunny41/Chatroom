@@ -95,6 +95,11 @@
             element.scrollTop = element.scrollHeight;
         });
 
+        socket.on('new message whisper', function(data){
+            $chat.append('<div class="msgWhisper">'+[data.timestamp]+' <strong>'+data.user+': </strong>'+data.msg+'</div>')
+            element.scrollTop = element.scrollHeight;
+        });
+
         socket.on('get users', function(data){
             var html = '';
             for(i=0; i<data.length; i++){

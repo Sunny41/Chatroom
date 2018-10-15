@@ -92,6 +92,10 @@ body{
 .msg{
     color: whitesmoke;
 }
+.msgWhisper {
+    color:purple;
+}
+
 h2{
     color: whitesmoke;
 }

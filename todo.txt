@@ -5,7 +5,8 @@ Appname:
 
 Sonja:
 - Multimedia content
-- Frontend: design
+- User already exists message anzeigen
+- notify user disconnected
 - Mockups
 - Präzi
 

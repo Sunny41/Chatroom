@@ -18,16 +18,11 @@ app.get('/upload', function(req, res){
 });
 
 io.sockets.on('connection', function(socket){
-    connections.push(socket);
-    console.log('Connected: %s sockets connected', connections.length);
+    connect(socket);
 
     //Disconnect
     socket.on('disconnect', function(data){
-        users.splice(users.indexOf(socket.username), 1);
-        updateUsers();
-        connections.splice(connections.indexOf(socket), 1);
-        notifyUserDisconnected(socket.username);
-        console.log('Disconnected: %s sockets connected', connections.length);
+        disconnect(socket);
     });
 
     //Send message
@@ -44,9 +39,9 @@ io.sockets.on('connection', function(socket){
         }
 
         socket.username = data;
-        users.push(socket.username);
+        users.push(data);
         updateUsers();
-        notifyUserConnected(socket.username);
+        notifyUserConnected(data);
         callback(true);
     });
 
@@ -63,6 +58,19 @@ io.sockets.on('connection', function(socket){
             }    
         );
     });
+
+    function connect(socket){
+        connections.push(socket);
+        console.log('Connected: %s sockets connected', connections.length);
+    }
+
+    function disconnect(socket) {
+        users.splice(users.indexOf(socket.username), 1);
+        updateUsers();
+        connections.splice(connections.indexOf(socket), 1);
+        notifyUserDisconnected(socket.username);
+        console.log('Disconnected: %s sockets connected', connections.length);
+    }
 
     function updateUsers(){
         io.sockets.emit('get users', users);
@@ -94,11 +102,13 @@ io.sockets.on('connection', function(socket){
             if(data.startsWith("/list")){
                 socket.emit('new message list', {users:users});
             }else if(data.startsWith("/whisper")){
-                var username = data.username;
-                var whisper_socket = connections.find(socket => socket.username === username);
+                var res = data.split(":");
+                var username = res[1].split(" ", 1);
+                var msg = res[1].slice(username[0].length, res[1].length);
+                var whisper_socket = connections.find(socket => socket.username == username);
                 if(whisper_socket){
-                    whisper_socket.emit('new message whisper', {msg:data, user:socket.username, timestamp:timestamp});
-                    socket.emit('new message whisper', {msg:data, user:socket.username, timestamp:timestamp});
+                    whisper_socket.emit('new message whisper', {msg, user:socket.username, timestamp:timestamp});
+                    socket.emit('new message whisper', {msg, user:socket.username, timestamp:timestamp});
                 }
             }else{
                 sendMessageToAllUsers(data, timestamp);
