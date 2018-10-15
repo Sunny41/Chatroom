@@ -43,22 +43,6 @@ io.sockets.on('connection', function(socket){
         callback(data);
     });
 
-    //File upload
-    socket.on('upload file', function(data){
-        //Send the file to all sockets
-        var timestamp = createTimestamp();
-        io.sockets.emit('send file', 
-            {
-              username: socket.username,
-              file: data.file,
-              fileName: data.fileName,
-              type: data.type,
-              size: data.size,
-              timestamp: timestamp
-            }    
-        );
-    });
-
     //Add connection to connections array
     function connect(socket){
         connections.push(socket);
@@ -82,18 +66,16 @@ io.sockets.on('connection', function(socket){
 
     //Notify that new user connected.
     function notifyUserConnected(username){
-        var alert = {};
-        alert.msg = "User " + username + " entered the room.";
-        alert.timestamp = createTimestamp();
-        io.sockets.emit('user connected', alert);
+        var msg = "User " + username + " entered the room.";
+        var timestamp = createTimestamp();
+        io.sockets.emit('new message',  {type:'disconnect', msg:msg, fileData:null, user:socket.username, timestamp:timestamp});
     }
 
     //Notify that user disconnected.
     function notifyUserDisconnected(username){
-        var alert = {};
-        alert.msg = "User: " + username + " left the room.";
-        alert.timestamp = createTimestamp();
-        io.sockets.emit('user disconnected', alert);
+        var msg = "User: " + username + " left the room.";
+        var timestamp = createTimestamp();
+        io.sockets.emit('new message',  {type:'disconnect', msg:msg, fileData:null, user:socket.username, timestamp:timestamp});
     }
 
     //Send a data object to all connected sockets.
