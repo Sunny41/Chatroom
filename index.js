@@ -9,7 +9,6 @@ app.use(express.static(__dirname + '/'));
 
 var users = [];
 var connections = [];
-var Files = {};
 
 server.listen(process.env.PORT || 3000);
 console.log('Server running');
@@ -83,7 +82,14 @@ io.sockets.on('connection', function(socket){
 
     function parseMessage(data, socket){
         if(data != ""){
-            var timestamp = new Date().getHours() + ":" + new Date().getMinutes();
+            var min = new Date().getMinutes();
+            var minutes;
+            if(min < 10){
+                minutes = "0" + min;
+            }else {
+                minutes = min;
+            }
+            var timestamp = new Date().getHours() + ":" + minutes;
 
             if(data.startsWith("/list")){
                 socket.emit('new message list', {users:users});

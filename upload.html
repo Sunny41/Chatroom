@@ -66,29 +66,21 @@
 
             socket.on('send file', function (data){
                 files.push(data);
-                var filenamePath = data.file;
-                var filenameDisplay = data.fileName;
-                var text = document.createTextNode(data.fileName);
 
                 var node;
-                node = document.createElement('a');
-
                 pos = files.map(function(e) { return e; }).indexOf(data);
                 console.log(pos);
-                node.href = files[pos].file; //"javascript:download();";
-                node.download = files[pos].fileName;
-                node.appendChild(text);
 
-                    /*
+
                 if(data.type.includes('image')){
                     node = document.createElement('img');
-                    node.src = data.file;
+                    node.src = files[pos].file;
                     node.width = 240;
                     node.height = 240; 
                 }
                 else if(data.type.includes('video')){
                     node = document.createElement('video');
-                    node.src = data.file;
+                    node.src = files[pos].file;
                     node.autoplay = false;
                     node.controls = true;
                     node.height = 240;
@@ -96,20 +88,13 @@
                     
                 }else if(data.type.includes('audio')){
                     node = document.createElement('audio');
+                    node.src = files[pos].file;
                     node.autoplay = false;
                     node.controls = true;
                 }
-                */
+                
                 document.getElementById('file').appendChild(node);
             });
-
-            function download()
-            {
-                console.log("DOWNLOAD STARTED " + files[pos].fileName);
-                ifrm = document.getElementById('iframe');
-                ifrm.src = files[pos].file;
-            }
-
         </script>
         
 
@@ -124,8 +109,6 @@
                 <button  type='button' id='UploadButton' class='Button'>Upload</button>
             </span>
         </div>
-
-        <iframe id="iframe" style="display:none;"></iframe>
 
         <div id="file">
             
