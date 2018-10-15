@@ -75,14 +75,26 @@
         var pos;
         var SelectedFile;
 
+        window.addEventListener("load", Ready);
+
+        function Ready(){
+            if(window.File && window.FileReader){
+                document.getElementById('filebtn').addEventListener('change', FileChosen);
+            }
+            else
+            {
+                document.getElementById('UploadArea').innerHTML = "Your Browser Doesn't Support The File API Please Update Your Browser";
+            }
+        }
 
         $userForm.submit(function(e){
             e.preventDefault();
             socket.emit('new user', $username.val(), function(data){
-                if(data){
+                if(data != false){
                     $userForm.hide();
                     $messageArea.show();
                     $chatArea.show();
+                    socket.username = data;
                 }
             });
             $username.val('');
@@ -90,21 +102,82 @@
 
         $messageForm.submit(function(e){
             e.preventDefault();
-
-            if(SelectedFile){
-                StartUpload;
+            
+            var msg = $message.val();
+            if(msg == null || msg == undefined){
+                msg = "";
             }
-            socket.emit('send message', $message.val());
+
+            var reader = new FileReader();
+            var fileData ={};
+            if(SelectedFile){
+                var reader = new FileReader();
+                    reader.onload = function(evt){
+                        fileData.username = socket.username;
+                        fileData.file =  evt.target.result;
+                        fileData.fileName = SelectedFile.name;
+                        fileData.type = SelectedFile.type;
+                        fileData.size = SelectedFile.size;
+                        socket.emit('send message',  {msg:msg, fileData:fileData});
+                    };
+                    reader.readAsDataURL(SelectedFile);
+            }else{
+                socket.emit('send message', {msg:msg, fileData:fileData});
+            }
+            
             $message.val('');
         });
 
         socket.on('new message', function(data){
-            $chat.append('<div class="msg">'+[data.timestamp]+' <strong>'+data.user+': </strong>'+data.msg+'</div>')
+            var node = '<div class="msg">'+[data.timestamp]+' <strong>'+data.user+': </strong>'+data.msg;
+
+            //Check for file
+            if(data.fileData.file){
+                files.push(data.fileData);
+
+                pos = files.map(function(e) { return e; }).indexOf(data.fileData);
+
+                if(data.fileData.type.includes('image')){
+                    node += '<img class="media" src='+files[pos].file+'>';
+                }
+                else if(data.fileData.type.includes('video')){
+                    node += '<video class="media" controls src='+files[pos].file+'>';
+                }else if(data.fileData.type.includes('audio')){
+                    node += '<audio class="media" controls src='+files[pos].file+'>';
+                }
+
+                removeFile();
+            }
+            
+            node += '</div>';
+            $chat.append(node)
             element.scrollTop = element.scrollHeight;
         });
 
         socket.on('new message whisper', function(data){
-            $chat.append('<div class="msgWhisper">'+[data.timestamp]+' <strong>'+data.user+': </strong>'+data.msg+'</div>')
+
+            var node = '<div class="msgWhisper">'+[data.timestamp]+' <strong>'+data.user+': </strong>'+data.msg;
+
+            //Check for file
+            if(data.fileData.file){
+                files.push(data.fileData);
+
+                pos = files.map(function(e) { return e; }).indexOf(data.fileData);
+
+                if(data.fileData.type.includes('image')){
+                    node += '<img class="media" src='+files[pos].file+'>';
+                }
+                else if(data.fileData.type.includes('video')){
+                    node += '<video class="media" autoplay="false" controls src='+files[pos].file+'>';
+                }else if(data.fileData.type.includes('audio')){
+                    node += '<audio class="media" autoplay="false" controls src='+files[pos].file+'>';
+                }
+
+                removeFile();
+            }
+
+            node += '</div>';
+            $chat.append(node)
             element.scrollTop = element.scrollHeight;
         });
 
@@ -119,100 +192,32 @@
 
         socket.on('user already exists', function(data){
             console.log(data);
-        });
+        });       
 
 
-    window.addEventListener("load", Ready);
+        function FileChosen(evnt) {
+            SelectedFile = evnt.target.files[0];
+            var fileType = SelectedFile.type;
 
-    function Ready(){
-        if(window.File && window.FileReader){
-            document.getElementById('sendbtn').addEventListener('click', StartUpload);
-            document.getElementById('filebtn').addEventListener('change', FileChosen);
-        }
-        else
-        {
-            document.getElementById('UploadArea').innerHTML = "Your Browser Doesn't Support The File API Please Update Your Browser";
-        }
-    }
+            console.log(SelectedFile.name + " " + SelectedFile.type);
+            if(fileType.includes('image') || fileType.includes('audio') || fileType.includes('video')){
+                document.getElementById('NameBox').value = SelectedFile.name;
+            }else {
+                //Show error
+                removeFile();
+                alert('File type not supported to be sent');
+            }
 
-
-    function FileChosen(evnt) {
-        SelectedFile = evnt.target.files[0];
-        var fileType = SelectedFile.type;
-
-        console.log(SelectedFile.name + " " + SelectedFile.type);
-        if(fileType.includes('image') || fileType.includes('audio') || fileType.includes('video')){
-            document.getElementById('NameBox').value = SelectedFile.name;
-        }else {
-            //Show error
-            removeFile();
-            alert('File type not supported to be sent');
         }
 
-    }
-
-    function removeFile(){
-        SelectedFile = null;
-        document.getElementById('filebtn').value = "";
-        document.getElementById('NameBox').value = "";
-    }
-
-    var FReader;
-    var Name;
-    function StartUpload(){
-        if(document.getElementById('NameBox').value != "")
-        {
-            var reader = new FileReader();
-            reader.onload = function(evt){
-                var data ={};
-                data.username = 'jannik';
-                data.file = evt.target.result;
-                data.fileName = document.getElementById('NameBox').value;
-                data.type = SelectedFile.type;
-                data.size = SelectedFile.size;
-                socket.emit('upload file', data);
-            };
-            reader.readAsDataURL(SelectedFile);
-        }
-        else
-        {
-            alert("Please Select A File");
-        }
-    }
-
-    socket.on('send file', function (data){
-        files.push(data);
-
-        var node;
-        var $chat =
-        pos = files.map(function(e) { return e; }).indexOf(data);
-        console.log(pos);
-
-
-        if(data.type.includes('image')){
-            node = document.createElement('img');
-            node.src = files[pos].file;
-            node.width = 240;
-            node.height = 240;
-        }
-        else if(data.type.includes('video')){
-            node = document.createElement('video');
-            node.src = files[pos].file;
-            node.autoplay = false;
-            node.controls = true;
-            node.height = 240;
-            node.width = 240;
-
-        }else if(data.type.includes('audio')){
-            node = document.createElement('audio');
-            node.src = files[pos].file;
-            node.autoplay = false;
-            node.controls = true;
+        function removeFile(){
+            SelectedFile = null;
+            document.getElementById('filebtn').value = "";
+            document.getElementById('NameBox').value = "";
         }
 
-        document.getElementById('messages').appendChild(node);
-        });
+        
     });
-</script>
+    </script>
 </body>
 </html>

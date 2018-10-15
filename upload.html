@@ -47,16 +47,16 @@
                 if(document.getElementById('FileBox').value != "")
                 {
                     var reader = new FileReader();
-                        reader.onload = function(evt){
-                            var data ={};
-                            data.username = 'jannik';
-                            data.file = evt.target.result;
-                            data.fileName = document.getElementById('NameBox').value;
-                            data.type = SelectedFile.type;
-                            data.size = SelectedFile.size;
-                            socket.emit('upload file', data);
-                        };
-                        reader.readAsDataURL(SelectedFile);
+                    reader.onload = function(evt){
+                        var data ={};
+                        data.username = 'jannik';
+                        data.file = evt.target.result;
+                        data.fileName = document.getElementById('NameBox').value;
+                        data.type = SelectedFile.type;
+                        data.size = SelectedFile.size;
+                        socket.emit('upload file', data);
+                    };
+                    reader.readAsDataURL(SelectedFile);
                 }
                 else
                 {
