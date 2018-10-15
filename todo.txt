@@ -2,6 +2,7 @@ Appname:
 - monkey
 - whatsup
 - piggy
+- nerdy chat
 
 Sonja:
 - Multimedia content
@@ -11,7 +12,6 @@ Sonja:
 - Präzi
 
 Jannik:
-- Multimedia content
 - Sequenzdiagramm
 - Klassendiagramm
 - Lesson learnt
