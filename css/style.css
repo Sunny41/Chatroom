@@ -93,9 +93,7 @@ body{
 .msg{
     color: whitesmoke;
 }
-.msgWhisper {
-    color:purple;
-}
+
 
 .media{
     width:240px;
@@ -118,4 +116,20 @@ form input[type="file"] {
 }
 #NameBox{
     display: none;
+
+}
+#alert{
+    color: red;
+}
+.connected{
+    color: green;
+    background-color: rgba(255,255,255,0.5);
+}
+.disconnected{
+    color: red;
+    background-color: rgba(255,255,255,0.5);
+}
+.msgWhisper {
+    color:purple;
+    background-color: rgba(255,255,255,0.5);
 }

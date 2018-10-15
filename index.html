@@ -17,7 +17,6 @@
         #chatArea{
             display: none;
         }
-
     </style>
 
 </head>
@@ -28,7 +27,6 @@
                 <div id="greeting">Welcome to your nerdy chat!</div>
                 <h2>Enter Username</h2>
                 <form id="userForm">
-
                     <input type="text" id="username" style="width: 10em"/>
                     <input type="submit" class="btn btn-primary" value="Login" />
                 </form>
@@ -86,18 +84,17 @@
                 document.getElementById('UploadArea').innerHTML = "Your Browser Doesn't Support The File API Please Update Your Browser";
             }
         }
-
         $userForm.submit(function(e){
             e.preventDefault();
             socket.emit('new user', $username.val(), function(data){
-                if(data != false){
+                if(data!=false){
                     $userForm.hide();
                     $messageArea.show();
                     $chatArea.show();
                     socket.username = data;
+                    $username.val('');
                 }
             });
-            $username.val('');
         });
 
         $messageForm.submit(function(e){
@@ -123,7 +120,6 @@
             }else{
                 socket.emit('send message', {username:socket.username, msg:msg, fileData:fileData});
             }
-
             $message.val('');
         });
 
@@ -132,9 +128,11 @@
                 var node = '<div class="msg">'+[data.timestamp]+' <strong>'+data.user+': </strong>'+data.msg;
             }else if(data.type == 'whisper'){
                 var node = '<div class="msgWhisper">'+[data.timestamp]+' <strong>'+data.user+': </strong>'+data.msg;
+            }else if(data.type =='connect'){
+                var node = '<div class="connected">'+[data.timestamp]+' <strong>'+data.user+': </strong>'+data.msg;
+            }else if(data.type =='disconnect'){
+                var node = '<div class="disconnected">'+[data.timestamp]+' <strong>'+data.user+': </strong>'+data.msg;
             }
-            
-
             //Check for file
             if(data.fileData.file){
                 files.push(data.fileData);
@@ -149,12 +147,11 @@
                 }else if(data.fileData.type.includes('audio')){
                     node += '<audio class="media" controls src='+files[pos].file+'>';
                 }
-
                 removeFile();
             }
             
             node += '</div>';
-            $chat.append(node)
+            $chat.append(node);
             element.scrollTop = element.scrollHeight;
         });
 
@@ -163,14 +160,13 @@
             for(i=0; i<data.length; i++){
                 html += '<li class="list-group-item">'+data[i]+'</li>';
             }
-
             $users.html(html);
         });
 
         socket.on('user already exists', function(data){
+            $userForm.append('<div id="alert"><strong>' + data + '</strong></div>');
             console.log(data);
-        });       
-
+        });
 
         function FileChosen(evnt) {
             SelectedFile = evnt.target.files[0];

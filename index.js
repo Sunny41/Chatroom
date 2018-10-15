@@ -15,40 +15,38 @@ var connections = [];
 server.listen(process.env.PORT || 3000 || 3030);
 console.log('Server running on port %s', server.address().port);
 
-io.sockets.on('connection', function(socket){
+io.sockets.on('connection', function(socket) {
     connect(socket);
 
     //Disconnect
-    socket.on('disconnect', function(data){
+    socket.on('disconnect', function (data) {
         disconnect(socket);
     });
 
     //Send message
-    socket.on('send message', function(data){
+    socket.on('send message', function (data) {
         parseMessage(data, socket);
     });
 
     //New User
-    socket.on('new user', function(data, callback){
-        if(users.includes(data)){
+    socket.on('new user', function (data, callback) {
+        if (users.includes(data)) {
             socket.emit("user already exists", "The current username already exists. Choose another one instead.");
             callback(false);
             return;
+        }else {
+            socket.username = data;
+            users.push(data);
+            updateUsers();
+            notifyUserConnected(data);
+            callback(data);
         }
-
-        socket.username = data;
-        users.push(data);
-        updateUsers();
-        notifyUserConnected(data);
-        callback(data);
     });
-
     //Add connection to connections array
     function connect(socket){
         connections.push(socket);
         console.log('Connected: %s sockets connected', connections.length);
     }
-
     //Remove user from users array and remove connection from connections array. Update users.
     function disconnect(socket) {
         users.splice(users.indexOf(socket.username), 1);
@@ -68,7 +66,7 @@ io.sockets.on('connection', function(socket){
     function notifyUserConnected(username){
         var msg = "User " + username + " entered the room.";
         var timestamp = createTimestamp();
-        io.sockets.emit('new message',  {type:'disconnect', msg:msg, fileData:null, user:socket.username, timestamp:timestamp});
+        io.sockets.emit('new message',  {type:'connect', msg:msg, fileData:null, user:socket.username, timestamp:timestamp});
     }
 
     //Notify that user disconnected.
