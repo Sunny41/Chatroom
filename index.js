@@ -68,14 +68,14 @@ io.sockets.on('connection', function(socket){
     function notifyUserConnected(username){
         var msg = "User " + username + " entered the room.";
         var timestamp = createTimestamp();
-        io.sockets.emit('new message',  {type:'disconnect', msg:msg, fileData:null, user:socket.username, timestamp:timestamp});
+        io.sockets.emit('new message',  {type:'connected', msg:msg, fileData:null, user:socket.username, timestamp:timestamp});
     }
 
     //Notify that user disconnected.
     function notifyUserDisconnected(username){
         var msg = "User: " + username + " left the room.";
         var timestamp = createTimestamp();
-        io.sockets.emit('new message',  {type:'disconnect', msg:msg, fileData:null, user:socket.username, timestamp:timestamp});
+        io.sockets.emit('new message',  {type:'disconnected', msg:msg, fileData:null, user:socket.username, timestamp:timestamp});
     }
 
     //Send a data object to all connected sockets.
@@ -93,7 +93,7 @@ io.sockets.on('connection', function(socket){
         }
 
         if(data.msg.startsWith("/list")){   //Check if the massage is a list command.
-            socket.emit('new message list', {users:users});
+            socket.emit('new message list', {type:'whisper', msg:users, fileData:data.fileData, user:socket.username, timestamp:timestamp});
         }else if(data.msg.startsWith("/whisper")){  //CHeck if the message is a whisper command.
             var res = data.msg.split(":");
             var username = res[1].split(" ", 1);
