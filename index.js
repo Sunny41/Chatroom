@@ -93,7 +93,7 @@ io.sockets.on('connection', function(socket){
         }
 
         if(data.msg.startsWith("/list")){   //Check if the massage is a list command.
-            socket.emit('new message list', {type:'whisper', msg:users, fileData:data.fileData, user:socket.username, timestamp:timestamp});
+            socket.emit('new message', {type:'list', msg:users, fileData:data.fileData, user:socket.username, timestamp:timestamp});
         }else if(data.msg.startsWith("/whisper")){  //CHeck if the message is a whisper command.
             var res = data.msg.split(":");
             var username = res[1].split(" ", 1);
