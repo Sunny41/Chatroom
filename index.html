@@ -51,7 +51,8 @@
                         <label>Enter Message</label>
                         <input type="text" id="message" size="90">
                         <input type="submit" class="btn btn-primary" id="sendbtn" value="    ">
-                        <input type="button" class="btn btn-primary" id="filebtn" value="    ">
+                        <input type="file" class="btn btn-primary" id="filebtn" value="    ">
+                        <input type="text" id="NameBox">
                 </form>
             </div>
         </div>
@@ -70,6 +71,9 @@
         var $username = $('#username');
         var $chatArea = $('#chatArea');
         var element = document.getElementById("messages");
+        var files = [];
+        var pos;
+        var SelectedFile;
 
 
         $userForm.submit(function(e){
@@ -86,6 +90,10 @@
 
         $messageForm.submit(function(e){
             e.preventDefault();
+
+            if(SelectedFile){
+                StartUpload;
+            }
             socket.emit('send message', $message.val());
             $message.val('');
         });
@@ -112,9 +120,99 @@
         socket.on('user already exists', function(data){
             console.log(data);
         });
+
+
+    window.addEventListener("load", Ready);
+
+    function Ready(){
+        if(window.File && window.FileReader){
+            document.getElementById('sendbtn').addEventListener('click', StartUpload);
+            document.getElementById('filebtn').addEventListener('change', FileChosen);
+        }
+        else
+        {
+            document.getElementById('UploadArea').innerHTML = "Your Browser Doesn't Support The File API Please Update Your Browser";
+        }
+    }
+
+
+    function FileChosen(evnt) {
+        SelectedFile = evnt.target.files[0];
+        var fileType = SelectedFile.type;
+
+        console.log(SelectedFile.name + " " + SelectedFile.type);
+        if(fileType.includes('image') || fileType.includes('audio') || fileType.includes('video')){
+            document.getElementById('NameBox').value = SelectedFile.name;
+        }else {
+            //Show error
+            removeFile();
+            alert('File type not supported to be sent');
+        }
+
+    }
+
+    function removeFile(){
+        SelectedFile = null;
+        document.getElementById('filebtn').value = "";
+        document.getElementById('NameBox').value = "";
+    }
+
+    var FReader;
+    var Name;
+    function StartUpload(){
+        if(document.getElementById('NameBox').value != "")
+        {
+            var reader = new FileReader();
+            reader.onload = function(evt){
+                var data ={};
+                data.username = 'jannik';
+                data.file = evt.target.result;
+                data.fileName = document.getElementById('NameBox').value;
+                data.type = SelectedFile.type;
+                data.size = SelectedFile.size;
+                socket.emit('upload file', data);
+            };
+            reader.readAsDataURL(SelectedFile);
+        }
+        else
+        {
+            alert("Please Select A File");
+        }
+    }
+
+    socket.on('send file', function (data){
+        files.push(data);
+
+        var node;
+        var $chat =
+        pos = files.map(function(e) { return e; }).indexOf(data);
+        console.log(pos);
+
+
+        if(data.type.includes('image')){
+            node = document.createElement('img');
+            node.src = files[pos].file;
+            node.width = 240;
+            node.height = 240;
+        }
+        else if(data.type.includes('video')){
+            node = document.createElement('video');
+            node.src = files[pos].file;
+            node.autoplay = false;
+            node.controls = true;
+            node.height = 240;
+            node.width = 240;
+
+        }else if(data.type.includes('audio')){
+            node = document.createElement('audio');
+            node.src = files[pos].file;
+            node.autoplay = false;
+            node.controls = true;
+        }
+
+        document.getElementById('messages').appendChild(node);
+        });
     });
-
-
 </script>
 </body>
 </html>
