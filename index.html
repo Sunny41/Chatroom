@@ -113,23 +113,27 @@
             if(SelectedFile){
                 var reader = new FileReader();
                     reader.onload = function(evt){
-                        fileData.username = socket.username;
                         fileData.file =  evt.target.result;
                         fileData.fileName = SelectedFile.name;
                         fileData.type = SelectedFile.type;
                         fileData.size = SelectedFile.size;
-                        socket.emit('send message',  {msg:msg, fileData:fileData});
+                        socket.emit('send message',  {username:socket.username, msg:msg, fileData:fileData});
                     };
                     reader.readAsDataURL(SelectedFile);
             }else{
-                socket.emit('send message', {msg:msg, fileData:fileData});
+                socket.emit('send message', {username:socket.username, msg:msg, fileData:fileData});
             }
-            
+
             $message.val('');
         });
 
         socket.on('new message', function(data){
-            var node = '<div class="msg">'+[data.timestamp]+' <strong>'+data.user+': </strong>'+data.msg;
+            if(data.type == 'all'){
+                var node = '<div class="msg">'+[data.timestamp]+' <strong>'+data.user+': </strong>'+data.msg;
+            }else if(data.type == 'whisper'){
+                var node = '<div class="msgWhisper">'+[data.timestamp]+' <strong>'+data.user+': </strong>'+data.msg;
+            }
+            
 
             //Check for file
             if(data.fileData.file){
@@ -149,33 +153,6 @@
                 removeFile();
             }
             
-            node += '</div>';
-            $chat.append(node)
-            element.scrollTop = element.scrollHeight;
-        });
-
-        socket.on('new message whisper', function(data){
-
-            var node = '<div class="msgWhisper">'+[data.timestamp]+' <strong>'+data.user+': </strong>'+data.msg;
-
-            //Check for file
-            if(data.fileData.file){
-                files.push(data.fileData);
-
-                pos = files.map(function(e) { return e; }).indexOf(data.fileData);
-
-                if(data.fileData.type.includes('image')){
-                    node += '<img class="media" src='+files[pos].file+'>';
-                }
-                else if(data.fileData.type.includes('video')){
-                    node += '<video class="media" autoplay="false" controls src='+files[pos].file+'>';
-                }else if(data.fileData.type.includes('audio')){
-                    node += '<audio class="media" autoplay="false" controls src='+files[pos].file+'>';
-                }
-
-                removeFile();
-            }
-
             node += '</div>';
             $chat.append(node)
             element.scrollTop = element.scrollHeight;

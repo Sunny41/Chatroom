@@ -94,7 +94,7 @@ io.sockets.on('connection', function(socket){
     }
 
     function sendMessageToAllUsers(data, timestamp){
-        io.sockets.emit('new message', {msg:data.msg, fileData:data.fileData, user:socket.username, timestamp:timestamp});
+        io.sockets.emit('new message', {type:'all', msg:data.msg, fileData:data.fileData, user:socket.username, timestamp:timestamp});
     }
 
     function parseMessage(data, socket){
@@ -112,8 +112,8 @@ io.sockets.on('connection', function(socket){
             var msg = res[1].slice(username[0].length, res[1].length);
             var whisper_socket = connections.find(socket => socket.username == username);
             if(whisper_socket){
-                whisper_socket.emit('new message whisper',  {msg:msg, fileData:data.fileData, user:socket.username, timestamp:timestamp});
-                socket.emit('new message whisper',  {msg:msg, fileData:data.fileData, user:socket.username, timestamp:timestamp});
+                whisper_socket.emit('new message',  {type:'whisper', msg:msg, fileData:data.fileData, user:socket.username, timestamp:timestamp});
+                socket.emit('new message',  {type:'whisper', msg:msg, fileData:data.fileData, user:socket.username, timestamp:timestamp});
             }
         }else{
             sendMessageToAllUsers(data, timestamp);
@@ -122,12 +122,12 @@ io.sockets.on('connection', function(socket){
 
     function createTimestamp(){
         var min = new Date().getMinutes();
-            var minutes;
-            if(min < 10){
-                minutes = "0" + min;
-            }else {
-                minutes = min;
-            }
-            return timestamp = new Date().getHours() + ":" + minutes;
+        var minutes;
+        if(min < 10){
+            minutes = "0" + min;
+        }else {
+            minutes = min;
+        }
+        return timestamp = new Date().getHours() + ":" + minutes;
     }
 });
