@@ -128,13 +128,14 @@
                 var node = '<div class="msg">'+[data.timestamp]+' <strong>'+data.user+': </strong>'+data.msg;
             }else if(data.type == 'whisper'){
                 var node = '<div class="msgWhisper">'+[data.timestamp]+' <strong>'+data.user+': </strong>'+data.msg;
-            }else if(data.type =='connect'){
+            }else if(data.type =='connected'){
+                
                 var node = '<div class="connected">'+[data.timestamp]+' <strong>'+data.user+': </strong>'+data.msg;
-            }else if(data.type =='disconnect'){
+            }else if(data.type =='disconnected'){
                 var node = '<div class="disconnected">'+[data.timestamp]+' <strong>'+data.user+': </strong>'+data.msg;
             }
             //Check for file
-            if(data.fileData.file){
+            if(data.fileData != null && data.fileData.file){
                 files.push(data.fileData);
 
                 pos = files.map(function(e) { return e; }).indexOf(data.fileData);
