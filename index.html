@@ -20,6 +20,7 @@
         #chatArea{
             display: none;
         }
+
     </style>
 
 </head>
@@ -53,11 +54,11 @@
             <div id="messageArea">
                 <form id="messageForm">
                     <label>Enter Message</label>
-                    <input type="text" id="message" size="90">
+                    <input type="text" id="message" size="85">
                     <input type="submit" class="btn btn-primary" id="sendbtn" value="    ">
                     <input type="button" id="chooseFileBtn" class="btn btn-primary" value="   ">
                     <input type="file" class="btn btn-primary" id="filebtn" value="    ">
-                    <input type="text" id="NameBox">
+                    <input type="text" id="NameBox"> <input type="button" id="delbtn" value="X">
                 </form>
             </div>
         </div>
@@ -87,6 +88,8 @@
             if(window.File && window.FileReader){
                 document.getElementById('filebtn').addEventListener('change', fileChosen);
                 document.getElementById('chooseFileBtn').addEventListener('click', chooseFile);
+                document.getElementById('delbtn').addEventListener('click',removeFile);
+                document.getElementById('delbtn').hidden=true;
             }
             else
             {
@@ -206,6 +209,7 @@
             console.log(SelectedFile.name + " " + SelectedFile.type);
             if(fileType.includes('image') || fileType.includes('audio') || fileType.includes('video')){
                 document.getElementById('NameBox').value = SelectedFile.name;
+                document.getElementById('delbtn').hidden=false;
             }else {
                 //Show error
                 removeFile();
@@ -219,6 +223,7 @@
             SelectedFile = null;
             document.getElementById('filebtn').value = "";
             document.getElementById('NameBox').value = "";
+            document.getElementById('delbtn').hidden=true;
         }
 
         //Method to trigger invisible button to choose a file

@@ -88,6 +88,12 @@ body{
 .btn{
     background-color: rgba(94,194,209,1);
 }
+#delbtn{
+    color: red;
+    background-color: transparent;
+    font-size: larger;
+    border: none;
+}
 
 #onlineUser {
     background-color: rgba(0,0,0,0.5);
@@ -112,12 +118,14 @@ form input[type="file"] {
     font-size: small;
     background-color: rgba(94,194,209,1);
 }
-#NameBox{
-    display: none;
 
-}
 #alert{
     color: red;
+}
+#NameBox{
+    color: whitesmoke;
+    background-color: rgba(0,0,0,0);
+    border: none;
 }
 
 /*Messages*/
@@ -128,8 +136,7 @@ ul li {
 }
 
 .media{
-    width:240px;
-    height:240px;
+    max-height:240px;
 }
 
 .msg{
