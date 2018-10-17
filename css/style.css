@@ -144,7 +144,7 @@ ul li {
     margin-top: 5px;
     margin-bottom: 5px;
     padding: 5px;
-    background-color: rgba(255,255,255,0.5);
+    background-color: rgba(255,255,255,255);
     display:inline-block;
 }
 
@@ -159,4 +159,7 @@ ul li {
 }
 .msgWhisper {
     color:purple;
+}
+.msgList {
+    color:rgb(0, 110, 255);
 }

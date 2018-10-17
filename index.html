@@ -148,6 +148,13 @@
                 var node = '<div class="msg"><div class="msgNormal">'+[data.timestamp]+' <strong>'+data.user+': </strong>'+data.msg;
             }else if(data.type == 'whisper'){
                 var node = '<div class="msg"><div class="msgWhisper">'+[data.timestamp]+' <strong>'+data.user+': </strong>'+data.msg;
+            }else if(data.type == 'list'){
+                var users = data.msg;
+                var userNames = "";
+                users.forEach(element => {
+                    userNames += "[" + element.id + "] ";
+                });
+                var node = '<div class="msg"><div class="msgList">'+[data.timestamp]+' Online users: '+userNames;
             }else if(data.type =='connected'){
                 var node = '<div class="msg"><div class="msgCon">'+[data.timestamp]+ " " + data.msg;
             }else if(data.type =='disconnected'){

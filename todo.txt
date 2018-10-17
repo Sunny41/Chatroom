@@ -5,10 +5,6 @@ Appname:
 - nerdy chat
 
 Sonja:
-- Multimedia content
-- User already exists message anzeigen
-- notify user disconnected
-- Mockups
 - Präzi
 
 Jannik:
