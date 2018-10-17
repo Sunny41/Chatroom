@@ -5,7 +5,7 @@ body{
     -o-background-size: cover;
     background-size: cover;
     color: whitesmoke;
-
+    overflow: hidden
 }
 
 #loginArea {
@@ -32,6 +32,7 @@ body{
     color: whitesmoke;
     overflow-y: scroll;
     max-height: 80vh;
+    margin-top:5%;
 }
 
 @font-face{
@@ -46,7 +47,6 @@ body{
 }
 
 #messages {
-    margin-top: 5%;
     min-height: 80vh;
     max-height: 80vh;
     background-color: rgba(0,0,0,0.5);
@@ -65,8 +65,12 @@ body{
     background-position: center;
     border-radius: 50%;
 }
-/*
-#filebtn{
+
+#filebtn {
+    display: none;
+}
+
+#chooseFileBtn{
     font-size: 50px;
     height: 50px;
     width: 50px;
@@ -77,10 +81,11 @@ body{
     background-position: center;
     border-radius: 50%;
 }
-*/
+
 .btn{
     background-color: rgba(94,194,209,1);
 }
+
 #onlineUser {
     background-color: rgba(0,0,0,0.5);
     color: black;
@@ -88,16 +93,6 @@ body{
     font-size: large;
     min-height: 100vh;
     max-height: 100vh;
-}
-
-.msg{
-    color: whitesmoke;
-}
-
-
-.media{
-    width:240px;
-    height:240px;
 }
 
 h2{
@@ -121,15 +116,37 @@ form input[type="file"] {
 #alert{
     color: red;
 }
-.connected{
-    color: green;
-    background-color: rgba(255,255,255,0.5);
+
+/*Messages*/
+ul {
+    list-style-type: none;
 }
-.disconnected{
-    color: red;
+ul li {
+}
+
+.media{
+    width:240px;
+    height:240px;
+}
+
+.msg{
+    color: black;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    padding: 5px;
     background-color: rgba(255,255,255,0.5);
+    display:inline-block;
+}
+
+.msgNormal{
+}
+
+.msgCon{
+    color: green;
+}
+.msgDisCon{
+    color: red;
 }
 .msgWhisper {
     color:purple;
-    background-color: rgba(255,255,255,0.5);
 }

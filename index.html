@@ -41,16 +41,20 @@
 <!-- Chat includes Typing Area and Conversation Area -->
         <div class="col-md-10" id="chat">
 <!-- Conversation Area -->
-            <div class="col-md-12" id="messages">
+            <div class="col-md-12">
+                <ul id="messages">
+
+                </ul>
             </div>
 <!-- Typing Area w/ send Button -->
             <div id="messageArea">
                 <form id="messageForm">
-                        <label>Enter Message</label>
-                        <input type="text" id="message" size="90">
-                        <input type="submit" class="btn btn-primary" id="sendbtn" value="    ">
-                        <input type="file" class="btn btn-primary" id="filebtn" value="    ">
-                        <input type="text" id="NameBox">
+                    <label>Enter Message</label>
+                    <input type="text" id="message" size="90">
+                    <input type="submit" class="btn btn-primary" id="sendbtn" value="    ">
+                    <input type="button" id="chooseFileBtn" class="btn btn-primary" value="   ">
+                    <input type="file" class="btn btn-primary" id="filebtn" value="    ">
+                    <input type="text" id="NameBox">
                 </form>
             </div>
         </div>
@@ -73,17 +77,22 @@
         var pos;
         var SelectedFile;
 
+        // ## Event listeners ###
         window.addEventListener("load", Ready);
 
         function Ready(){
             if(window.File && window.FileReader){
-                document.getElementById('filebtn').addEventListener('change', FileChosen);
+                document.getElementById('filebtn').addEventListener('change', fileChosen);
+                document.getElementById('chooseFileBtn').addEventListener('click', chooseFile);
             }
             else
             {
                 document.getElementById('UploadArea').innerHTML = "Your Browser Doesn't Support The File API Please Update Your Browser";
             }
         }
+
+        // ### Functions for global variables ###
+        //Submit functions for a new user
         $userForm.submit(function(e){
             e.preventDefault();
             socket.emit('new user', $username.val(), function(data){
@@ -97,6 +106,7 @@
             });
         });
 
+        //Submit function to send a new message
         $messageForm.submit(function(e){
             e.preventDefault();
             
@@ -123,16 +133,19 @@
             $message.val('');
         });
 
+        //### Socket listener functions ###
+        //Listen for new message from backend
         socket.on('new message', function(data){
+            var li = '<li>';
+
             if(data.type == 'all'){
-                var node = '<div class="msg">'+[data.timestamp]+' <strong>'+data.user+': </strong>'+data.msg;
+                var node = '<div class="msg"><div class="msgNormal">'+[data.timestamp]+' <strong>'+data.user+': </strong>'+data.msg;
             }else if(data.type == 'whisper'){
-                var node = '<div class="msgWhisper">'+[data.timestamp]+' <strong>'+data.user+': </strong>'+data.msg;
+                var node = '<div class="msg"><div class="msgWhisper">'+[data.timestamp]+' <strong>'+data.user+': </strong>'+data.msg;
             }else if(data.type =='connected'){
-                
-                var node = '<div class="connected">'+[data.timestamp]+' <strong>'+data.user+': </strong>'+data.msg;
+                var node = '<div class="msg"><div class="msgCon">'+[data.timestamp]+ " " + data.msg;
             }else if(data.type =='disconnected'){
-                var node = '<div class="disconnected">'+[data.timestamp]+' <strong>'+data.user+': </strong>'+data.msg;
+                var node = '<div class="msg"><div class="msgDisCon">'+[data.timestamp]+ " " +data.msg;
             }
             //Check for file
             if(data.fileData != null && data.fileData.file){
@@ -151,25 +164,39 @@
                 removeFile();
             }
             
-            node += '</div>';
-            $chat.append(node);
+            node += '</div></div>';
+            li += node + '</li>'
+            $chat.append(li);
             element.scrollTop = element.scrollHeight;
         });
 
+        //Listen for users event
         socket.on('get users', function(data){
             var html = '';
             for(i=0; i<data.length; i++){
-                html += '<li class="list-group-item">'+data[i]+'</li>';
+                if(data[i].id == socket.username){
+                    html += '<li class="list-group-item"><strong>'+data[i].id+'</strong></li>';
+                }else{
+                    html += '<li class="list-group-item">'+data[i].id+'</li>';
+                }                
             }
             $users.html(html);
         });
 
+        //Listen for user already exists event.
         socket.on('user already exists', function(data){
             $userForm.append('<div id="alert"><strong>' + data + '</strong></div>');
             console.log(data);
         });
+        
+        //Listen for disconnect event. Reset socket's username
+        socket.on('disconnect socket', function(){
+            socket.username = null;
+        });
 
-        function FileChosen(evnt) {
+        // ### Script functions ###
+        //Get file from event and store it in a variable
+        function fileChosen(evnt) {
             SelectedFile = evnt.target.files[0];
             var fileType = SelectedFile.type;
 
@@ -184,13 +211,18 @@
 
         }
 
+        //Remove choosen file
         function removeFile(){
             SelectedFile = null;
             document.getElementById('filebtn').value = "";
             document.getElementById('NameBox').value = "";
         }
 
-        
+        //Method to trigger invisible button to choose a file
+        function chooseFile(){
+            var button = document.getElementById("filebtn");
+            button.click();
+        }
     });
     </script>
 </body>
