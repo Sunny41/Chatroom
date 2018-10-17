@@ -138,6 +138,7 @@ io.sockets.on('connection', function(socket) {
         return timestamp = new Date().getHours() + ":" + minutes;
     }
 
+    //Return true if user already exists
     function userAlreadyExists(userId){
         var userAlreadyExists = false;
         users.forEach(function(element) {
