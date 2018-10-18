@@ -68,8 +68,10 @@ io.sockets.on('connection', function(socket) {
         } 
         //Disconnect connection              
         connections.splice(connections.indexOf(socket), 1);
-        socket.emit('disconnect socket', "");  
-        notifyUserDisconnected(socket.username);
+        socket.emit('disconnect socket', "");
+        if(socket.username != undefined) {
+            notifyUserDisconnected(socket.username);
+        }        
         console.log('Disconnected: %s sockets connected', connections.length);
     }
 
