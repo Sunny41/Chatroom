@@ -1,5 +1,5 @@
 //index.js
-//author: Jannik Renner 752776
+//author: Jannik Renner 752776, Sonja Czernotzky 742284
 
 var express = require('express');
 var app = express();
