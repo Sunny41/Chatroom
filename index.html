@@ -66,6 +66,8 @@
 
 </div>
 <script>
+    
+
     $(function(){
         var socket = io.connect();
         var $messageForm = $('#messageForm');
@@ -82,20 +84,21 @@
         var SelectedFile;
 
         // ## Event listeners ###
-        window.addEventListener("load", Ready);
+        //window.addEventListener("load", Ready);
 
-        function Ready(){
-            if(window.File && window.FileReader){
-                document.getElementById('filebtn').addEventListener('change', fileChosen);
-                document.getElementById('chooseFileBtn').addEventListener('click', chooseFile);
-                document.getElementById('delbtn').addEventListener('click',removeFile);
-                document.getElementById('delbtn').hidden=true;
-            }
-            else
-            {
-                document.getElementById('UploadArea').innerHTML = "Your Browser Doesn't Support The File API Please Update Your Browser";
-            }
-        }
+        //function Ready(){
+        $(document).ready(function(){
+            document.getElementById('filebtn').addEventListener('change', fileChosen);
+            document.getElementById('chooseFileBtn').addEventListener('click', chooseFile);
+            document.getElementById('delbtn').addEventListener('click',removeFile);
+            document.getElementById('delbtn').hidden=true;
+
+            //Randomize background image
+            var classCycle=['image1', 'image2', 'image3', 'image4', 'image5', 'image6'];
+            var randomNumber = Math.floor(Math.random() * classCycle.length);
+            var classToAdd = classCycle[randomNumber];
+            $('body').addClass(classToAdd);        
+        });
 
         // ### Functions for global variables ###
         //Submit functions for a new user

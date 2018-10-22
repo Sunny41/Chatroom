@@ -9,6 +9,17 @@ author: Sonja Czernotzky 742284*/
 
 /* styling html tags */
 body{
+    /*background: url("../img/ui/bg2.jpg")no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    color: whitesmoke;
+    overflow: hidden
+    */
+}
+/*background image classes*/
+.image1{
     background: url("../img/ui/bg2.jpg")no-repeat center center fixed;
     -webkit-background-size: cover;
     -moz-background-size: cover;
@@ -17,6 +28,52 @@ body{
     color: whitesmoke;
     overflow: hidden
 }
+.image2{
+    background: url("../img/ui/arcade.jpg")no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    color: whitesmoke;
+    overflow: hidden
+}
+.image3{
+    background: url("../img/ui/mario.jpg")no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    color: whitesmoke;
+    overflow: hidden
+}
+.image4{
+    background: url("../img/ui/mc.jpg")no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    color: whitesmoke;
+    overflow: hidden
+}
+.image5{
+    background: url("../img/ui/starwars.jpg")no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    color: whitesmoke;
+    overflow: hidden
+}
+.image6{
+    background: url("../img/ui/portal.jpg")no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    color: whitesmoke;
+    overflow: hidden
+}
+
 h2{
     color: whitesmoke;
 }
