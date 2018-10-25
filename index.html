@@ -104,6 +104,14 @@
         //Submit functions for a new user
         $userForm.submit(function(e){
             e.preventDefault();
+
+            //Clear shown login error message
+            var parentNode = document.getElementById("loginArea");
+            var node = document.getElementById("alert");
+            if(node != null){
+                parentNode.removeChild(node);
+            }            
+
             socket.emit('new user', $username.val(), function(data){
                 if(data!=false){
                     $userForm.hide();
@@ -200,9 +208,8 @@
         });
 
         //Listen for user already exists event.
-        socket.on('user already exists', function(data){
+        socket.on('login error', function(data){
             $userForm.append('<div id="alert"><strong>' + data + '</strong></div>');
-            console.log(data);
         });
         
         //Listen for disconnect event. Reset socket's username
@@ -216,7 +223,6 @@
             SelectedFile = evnt.target.files[0];
             var fileType = SelectedFile.type;
 
-            console.log(SelectedFile.name + " " + SelectedFile.type);
             if(fileType.includes('image') || fileType.includes('audio') || fileType.includes('video')){
                 document.getElementById('NameBox').value = SelectedFile.name;
                 document.getElementById('delbtn').hidden=false;

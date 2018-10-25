@@ -36,17 +36,24 @@ io.sockets.on('connection', function(socket) {
             id:socket.username
         };
 
-        //Check if user already exists
-        if (userAlreadyExists(user.id)) {
-            socket.emit("user already exists", "The current username already exists. Choose another one instead.");
-            callback(false);
-            return;
-        }else {
-            users.push(user);
-            notifyUserConnected(user.id);
-            callback(user.id);
-            updateUsers();
-        }
+        //Check if username matches regex. No whitespace is allowed. No html tags allowed.
+        var regEx1 = new RegExp("[ \r\n\t\f ]");
+        var regEx2 = new RegExp("<([a-z]+) *[^/]*?>");
+        if(regEx1.test(data) || regEx2.test(data)){
+            socket.emit("login error", "Please enter a single word for the username.")
+        }else{
+            //Check if user already exists
+            if (userAlreadyExists(user.id)) {
+                socket.emit("login error", "The current username already exists. Choose another one instead.");
+                callback(false);
+                return;
+            }else {
+                users.push(user);
+                notifyUserConnected(user.id);
+                callback(user.id);
+                updateUsers();
+            }
+        }        
     });
     //Add connection to connections array
     function connect(socket){
@@ -105,25 +112,31 @@ io.sockets.on('connection', function(socket) {
         //Check if message or file is attached. If both are missing, don't send
         if(data.msg != null && data.msg != undefined && data.msg != "" || data.fileData.file != null && data.fileData.file != undefined){
 
-            var timestamp = createTimestamp();
+            //Check for javascript or html div's in msg object. Only send message if the regEx doesn't fit.
+            var regEx = new RegExp("<([a-z]+) *[^/]*?>");
+            
+            var truthy = regEx.test(data.msg);
+            if(!truthy){
+                var timestamp = createTimestamp();
     
-            if(data.msg.startsWith("/list")){   //Check if the massage is a list command.
-                socket.emit('new message', {type:'list', msg:users, fileData:data.fileData, user:socket.username, timestamp:timestamp});
-            }else if(data.msg.startsWith("/whisper")){  //CHeck if the message is a whisper command.
-                //Split username from message
-                var res = data.msg.split(":");
-                var username = res[1].split(" ", 1);
-                var msg = res[1].slice(username[0].length, res[1].length);
-                //Get socket related to username
-                var whisper_socket = connections.find(socket => socket.username == username);
-                //Send message to self and whisper user
-                if(whisper_socket){
-                    whisper_socket.emit('new message',  {type:'whisper', msg:msg, fileData:data.fileData, user:socket.username, timestamp:timestamp});
-                    socket.emit('new message',  {type:'whisper', msg:msg, fileData:data.fileData, user:socket.username, timestamp:timestamp});
+                if(data.msg.startsWith("/list")){   //Check if the massage is a list command.
+                    socket.emit('new message', {type:'list', msg:users, fileData:data.fileData, user:socket.username, timestamp:timestamp});
+                }else if(data.msg.startsWith("/whisper")){  //CHeck if the message is a whisper command.
+                    //Split username from message
+                    var res = data.msg.split(":");
+                    var username = res[1].split(" ", 1);
+                    var msg = res[1].slice(username[0].length, res[1].length);
+                    //Get socket related to username
+                    var whisper_socket = connections.find(socket => socket.username == username);
+                    //Send message to self and whisper user
+                    if(whisper_socket){
+                        whisper_socket.emit('new message',  {type:'whisper', msg:msg, fileData:data.fileData, user:socket.username, timestamp:timestamp});
+                        socket.emit('new message',  {type:'whisper', msg:msg, fileData:data.fileData, user:socket.username, timestamp:timestamp});
+                    }
+                }else{  //The message is no specific command. Send it to all users.
+                    sendMessageToAllUsers(data, timestamp);
                 }
-            }else{  //The message is no specific command. Send it to all users.
-                sendMessageToAllUsers(data, timestamp);
-            }
+            }           
         }
         
     }
