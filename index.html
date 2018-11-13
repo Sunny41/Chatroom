@@ -67,6 +67,33 @@
 </div>
 <script>
     
+    function getTone() {
+        fetch("https://toneanalyzer.eu-de.mybluemix.net/tone", {
+            method: "POST",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'mode': 'cors'
+            },
+            body: JSON.stringify({
+               texts: [document.getElementById("message").value, document.getElementById("message").value]
+            })
+        })
+        .then((response) => {
+            var contentType = response.headers.get("content-type");
+            if(contentType && contentType.includes("application/json")) {
+               return response.json();
+            }
+            throw new TypeError("Oops, we haven't got JSON!");
+        })
+        .then((response) => { 
+            console.log("response:" +  JSON.stringify(response));
+            if (response.mood) {
+              //document.getElementById("mood").value = response.mood;
+            }
+        })
+    }
+
 
     $(function(){
         var socket = io.connect();
@@ -127,6 +154,8 @@
         $messageForm.submit(function(e){
             e.preventDefault();
             
+            getTone();
+
             var msg = $message.val();
             if(msg == null || msg == undefined){
                 msg = "";
