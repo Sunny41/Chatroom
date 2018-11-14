@@ -18,7 +18,7 @@ app.use(bodyParser.json())
 var users = [];
 var connections = [];
 
-server.listen(process.env.PORT || 3000 || 3030);
+server.listen(process.env.PORT || 3030);
 console.log('Server running on port %s', server.address().port);
 
 async function getTone(msg){
