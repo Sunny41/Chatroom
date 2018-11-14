@@ -2,6 +2,9 @@
 //author: Jannik Renner 752776, Sonja Czernotzky 742284
 
 var express = require('express');
+var bodyParser = require('body-parser');
+var request = require('request');
+
 var app = express();
 var server = require('http').createServer(app);
 var io = require('socket.io').listen(server);
@@ -9,12 +12,34 @@ var fs = require('fs');
 var path = require('path');
 
 app.use(express.static(__dirname + '/'));
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json())
 
 var users = [];
 var connections = [];
 
 server.listen(process.env.PORT || 3000 || 3030);
 console.log('Server running on port %s', server.address().port);
+
+async function getTone(msg){
+    var clientServerOptions = {
+        uri: 'https://toneanalyzer.eu-de.mybluemix.net/tone',
+        body: JSON.stringify({
+            texts: [msg, msg]
+         }),
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'mode': 'cors'
+        }
+    }
+    await request(clientServerOptions, function (error, response) {
+        console.log(error,response.body);
+        
+        return response.body.mood;
+    });
+}
 
 io.sockets.on('connection', function(socket) {
     connect(socket);
@@ -101,44 +126,62 @@ io.sockets.on('connection', function(socket) {
         io.sockets.emit('new message',  {type:'disconnected', msg:msg, fileData:null, user:socket.username, timestamp:timestamp});
     }
 
-    //Send a data object to all connected sockets.
-    function sendMessageToAllUsers(data, timestamp){
-        io.sockets.emit('new message', {type:'all', msg:data.msg, fileData:data.fileData, user:socket.username, timestamp:timestamp});
-    }
-
     //Parse the data object's massage to distinguis between different commands.
     function parseMessage(data, socket){
 
         //Check if message or file is attached. If both are missing, don't send
         if(data.msg != null && data.msg != undefined && data.msg != "" || data.fileData.file != null && data.fileData.file != undefined){
-
+ 
             //Check for javascript or html div's in msg object. Only send message if the regEx doesn't fit.
             var regEx = new RegExp("<([a-z]+) *[^/]*?>");
             
             var truthy = regEx.test(data.msg);
             if(!truthy){
-                var timestamp = createTimestamp();
-    
+
+                //Check if it is a list command
                 if(data.msg.startsWith("/list")){   //Check if the massage is a list command.
                     socket.emit('new message', {type:'list', msg:users, fileData:data.fileData, user:socket.username, timestamp:timestamp});
-                }else if(data.msg.startsWith("/whisper")){  //CHeck if the message is a whisper command.
-                    //Split username from message
-                    var res = data.msg.split(":");
-                    var username = res[1].split(" ", 1);
-                    var msg = res[1].slice(username[0].length, res[1].length);
-                    //Get socket related to username
-                    var whisper_socket = connections.find(socket => socket.username == username);
-                    //Send message to self and whisper user
-                    if(whisper_socket){
-                        whisper_socket.emit('new message',  {type:'whisper', msg:msg, fileData:data.fileData, user:socket.username, timestamp:timestamp});
-                        socket.emit('new message',  {type:'whisper', msg:msg, fileData:data.fileData, user:socket.username, timestamp:timestamp});
+                }else {
+                    //get mood
+                    var clientServerOptions = {
+                        uri: 'https://toneanalyzer.eu-de.mybluemix.net/tone',
+                        body: JSON.stringify({
+                            texts: [data.msg, data.msg]
+                        }),
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'mode': 'cors'
+                        }
                     }
-                }else{  //The message is no specific command. Send it to all users.
-                    sendMessageToAllUsers(data, timestamp);
-                }
+                    request(clientServerOptions, function (error, response) {
+                        
+                        var result = JSON.parse(response.body);
+                        var mood = result.mood;
+
+                        //Proceed with sending message to clients
+                        var timestamp = createTimestamp();
+
+                        if(data.msg.startsWith("/whisper")){  //CHeck if the message is a whisper command.
+                            //Split username from message
+                            var res = data.msg.split(":");
+                            var username = res[1].split(" ", 1);
+                            var msg = res[1].slice(username[0].length, res[1].length);
+                            //Get socket related to username
+                            var whisper_socket = connections.find(socket => socket.username == username);
+                            //Send message to self and whisper user
+                            if(whisper_socket){
+                                whisper_socket.emit('new message',  {type:'whisper', msg:msg, mood:mood, fileData:data.fileData, user:socket.username, timestamp:timestamp});
+                                socket.emit('new message',  {type:'whisper', msg:msg, mood:mood, fileData:data.fileData, user:socket.username, timestamp:timestamp});
+                            }
+                        }else{  //The message is no specific command. Send it to all users.
+                            io.sockets.emit('new message', {type:'all', msg:data.msg, mood:mood, fileData:data.fileData, user:socket.username, timestamp:timestamp});
+                        }
+                    });
+                }             
             }           
-        }
-        
+        }        
     }
 
     //Create a timestamp object with the current time in hour:minute.
