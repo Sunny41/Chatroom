@@ -21,26 +21,6 @@ var connections = [];
 server.listen(process.env.PORT || 3030);
 console.log('Server running on port %s', server.address().port);
 
-async function getTone(msg){
-    var clientServerOptions = {
-        uri: 'https://toneanalyzer.eu-de.mybluemix.net/tone',
-        body: JSON.stringify({
-            texts: [msg, msg]
-         }),
-        method: 'POST',
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'mode': 'cors'
-        }
-    }
-    await request(clientServerOptions, function (error, response) {
-        console.log(error,response.body);
-        
-        return response.body.mood;
-    });
-}
-
 io.sockets.on('connection', function(socket) {
     connect(socket);
 
