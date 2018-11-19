@@ -11,7 +11,8 @@ var io = require('socket.io').listen(server);
 var fs = require('fs');
 var path = require('path');
 
-app.use(express.static(__dirname + '/'));
+//app.use(express.static(__dirname + '/'));
+app.use(express.static('public/'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json())
 
