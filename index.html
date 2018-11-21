@@ -11,7 +11,6 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="./socket.io.js"></script>
-
     <link href="style.css" rel="stylesheet">
     <style>
         #messageArea{
@@ -20,124 +19,172 @@
         #chatArea{
             display: none;
         }
-
+        #loginAreaSignUp{
+            display:none;
+        }
+        #loginAreaSignIn{
+            display: none;
+        }
     </style>
-
 </head>
 <body>
 <div id="container-fluid">
+    <!-- whole loginArea -->
     <div class="row" id="loginArea">
         <div class="col-md-12">
-                <div id="greeting">Welcome to your nerdy chat!</div>
-                <h2>Enter Username</h2>
-                <form id="userForm">
-                    <input type="text" id="username" style="width: 10em"/>
-                    <input type="submit" class="btn btn-primary" value="Login" />
-                </form>
-        </div>
-    </div>
-<!--chatArea includes online users and "chat" -->
-    <div class="row" id="chatArea">
-        <div class="col-md-2" id="onlineUser">
-            <h3>Online Users</h3>
-            <ul class="list-group" id="users"></ul>
-        </div>
-<!-- Chat includes Typing Area and Conversation Area -->
-        <div class="col-md-10" id="chat">
-<!-- Conversation Area -->
-            <div class="col-md-12">
-                <ul id="messages">
+            <div id="greeting">Welcome to your nerdy chat!</div>
 
-                </ul>
+            <!-- login container sign in / sign up -->
+            <div id="firstloginArea">
+                <input type="button" id="signin" class="btn btn-primary" value="Sign In!" onclick="showExUserForm();">
+                <input type="button" id="signup" class ="btn btn-primary" value="I'm new here, sign me up!" onclick="showNewUserForm();">
             </div>
-<!-- Typing Area w/ send Button -->
-            <div id="messageArea">
-                <form id="messageForm">
-                    <label>Enter Message</label>
-                    <input type="text" id="message" size="85">
-                    <input type="submit" class="btn btn-primary" id="sendbtn" value="    ">
-                    <input type="button" id="chooseFileBtn" class="btn btn-primary" value="   ">
-                    <input type="file" class="btn btn-primary" id="filebtn" value="    ">
-                    <input type="text" id="NameBox"> <input type="button" id="delbtn" value="X">
+
+            <!-- login Container existing user-->
+            <div id="loginAreaSignIn">
+                <h2>Enter Username and Password</h2>
+                <form id="existingUser">
+                    <input type="text" id="username" style="width: 10em" placeholder="Username"/>
+                    <input type="password" id="passwordOLD" style="width: 10em" placeholder="Password"/>
+                    <input type="submit" class="btn btn-primary" value="Login" id="existingU"/>
                 </form>
+                <input type="submit" class="btn btn-primary" value="Back" id="exBack" onclick="exBackToStart();">
+            </div>
+
+            <!-- login Container new User -->
+            <div id="loginAreaSignUp">
+                <form id="NewUser">
+                    <h2>Enter a new Username and new Password</h2>
+                    <input type="text" id="usernameNEW" style="width: 10em" placeholder="Username"/><br>
+                    <input type="password" id="passwordNEW" style="width: 10em" placeholder="Password"/><br>
+                    <input type="password" id="passwordAGAIN" style="width: 10em" placeholder="repeat Password"/><br>
+                    <input type="file" id="photo"  class="btn btn-primary" value="Choose your Profile Picture"><br>
+                    <input type="submit" class="btn btn-primary" value="Sign me up!" id="newU"/>
+                </form>
+                <input type="submit" class="btn btn-primary" value="Back" id="newBack" onclick="newBackToStart();">
             </div>
         </div>
     </div>
+        <!--chatArea includes online users and "chat" -->
+        <div class="row" id="chatArea">
+            <div class="col-md-2" id="onlineUser">
+                <h3>Online Users</h3>
+                <ul class="list-group" id="users"></ul>
+            </div>
+            <!-- Chat includes Typing Area and Conversation Area -->
+            <div class="col-md-10" id="chat">
+                <!-- Conversation Area -->
+                <div class="col-md-12">
+                    <ul id="messages">
 
-</div>
-<script>
-    
-    
+                    </ul>
+                </div>
+                <!-- Typing Area w/ send Button -->
+                <div id="messageArea">
+                    <form id="messageForm">
+                        <label>Enter Message</label>
+                        <input type="text" id="message" size="85">
+                        <input type="submit" class="btn btn-primary" id="sendbtn" value="    ">
+                        <input type="button" id="chooseFileBtn" class="btn btn-primary" value="   ">
+                        <input type="file" class="btn btn-primary" id="filebtn" value="    ">
+                        <input type="text" id="NameBox"> <input type="button" id="delbtn" value="X">
+                    </form>
+                </div>
+            </div>
+        </div>
 
+    </div>
+    <script>
 
-    $(function(){
-        var socket = io.connect();
-        var $messageForm = $('#messageForm');
-        var $message = $('#message');
-        var $chat = $('#messages');
-        var $userForm = $('#loginArea');
-        var $messageArea = $('#messageArea');
-        var $users = $('#users');
-        var $username = $('#username');
-        var $chatArea = $('#chatArea');
-        var element = document.getElementById("messages");
-        var files = [];
-        var pos;
-        var SelectedFile;
+        $(function(){
+            var socket = io.connect();
+            var $messageForm = $('#messageForm');
+            var $message = $('#message');
+            var $chat = $('#messages');
+            var $userFormNEW = $('#NewUser');
+            var $userFormOLD = $('#existingUser');
+            var $loginArea =$('#loginArea');
+            var $messageArea = $('#messageArea');
+            var $users = $('#users');
+            var $username = $('#username');
+            var $chatArea = $('#chatArea');
+            var $passwordEx=$("#passwordOLD");
+            var $passwordNEW = $("#passwordNEW");
+            var element = document.getElementById("messages");
 
-        // ## Event listeners ###
-        //window.addEventListener("load", Ready);
+            var files = [];
+            var pos;
+            var SelectedFile;
 
-        //function Ready(){
-        $(document).ready(function(){
-            document.getElementById('filebtn').addEventListener('change', fileChosen);
-            document.getElementById('chooseFileBtn').addEventListener('click', chooseFile);
-            document.getElementById('delbtn').addEventListener('click',removeFile);
-            document.getElementById('delbtn').hidden=true;
+            // ## Event listeners ###
+            //window.addEventListener("load", Ready);
 
-            //Randomize background image
-            var classCycle=['image1', 'image2', 'image3', 'image4', 'image5', 'image6'];
-            var randomNumber = Math.floor(Math.random() * classCycle.length);
-            var classToAdd = classCycle[randomNumber];
-            $('body').addClass(classToAdd);        
-        });
+            //function Ready(){
+            $(document).ready(function(){
+                document.getElementById('filebtn').addEventListener('change', fileChosen);
+                document.getElementById('chooseFileBtn').addEventListener('click', chooseFile);
+                document.getElementById('delbtn').addEventListener('click',removeFile);
+                document.getElementById('delbtn').hidden=true;
 
-        // ### Functions for global variables ###
-        //Submit functions for a new user
-        $userForm.submit(function(e){
-            e.preventDefault();
-
-            //Clear shown login error message
-            var parentNode = document.getElementById("loginArea");
-            var node = document.getElementById("alert");
-            if(node != null){
-                parentNode.removeChild(node);
-            }            
-
-            socket.emit('new user', $username.val(), function(data){
-                if(data!=false){
-                    $userForm.hide();
-                    $messageArea.show();
-                    $chatArea.show();
-                    socket.username = data;
-                    $username.val('');
-                }
+                //Randomize background image
+                var classCycle=['image1', 'image2', 'image3', 'image4', 'image5', 'image6'];
+                var randomNumber = Math.floor(Math.random() * classCycle.length);
+                var classToAdd = classCycle[randomNumber];
+                $('body').addClass(classToAdd);
             });
-        });
 
-        //Submit function to send a new message
-        $messageForm.submit(function(e){
-            e.preventDefault();
+            // ### Functions for global variables ###
 
-            var msg = $message.val();
-            if(msg == null || msg == undefined){
-                msg = "";
-            }
+            //Submit functions for a new user
+            $userFormNEW.submit(function(e){
+                e.preventDefault();
 
-            var reader = new FileReader();
-            var fileData ={};
-            if(SelectedFile){
+                //Clear shown login error message
+                var parentNode = document.getElementById("loginArea");
+                var node = document.getElementById("alert");
+                if(node != null){
+                    parentNode.removeChild(node);
+                }
+
+                socket.emit('existing user', $username.val(), $passwordEx.val(), function(data){
+                    if(data!=false){
+                        $loginArea.hide();
+                        $messageArea.show();
+                        $chatArea.show();
+                        socket.username = data;
+                        $username.val('');
+                    }
+                });
+            });
+
+            //Submit function for existing User
+            $userFormOLD.submit(function(e){
+                e. preventDefault();
+
+                socket.emit('new user', $username.val(), $passwordNEW.val(), function(data){
+                    if(data!=false){
+                        $loginArea.hide();
+                        $messageArea.show();
+                        $chatArea.show();
+                        socket.username = data;
+                        $username.val('');
+                    }
+                });
+
+            });
+            //Submit function to send a new message
+            $messageForm.submit(function(e){
+                e.preventDefault();
+
+                var msg = $message.val();
+                if(msg == null || msg == undefined){
+                    msg = "";
+                }
+
                 var reader = new FileReader();
+                var fileData ={};
+                if(SelectedFile){
+                    var reader = new FileReader();
                     reader.onload = function(evt){
                         fileData.file =  evt.target.result;
                         fileData.fileName = SelectedFile.name;
@@ -146,113 +193,142 @@
                         socket.emit('send message',  {username:socket.username, msg:msg, fileData:fileData});
                     };
                     reader.readAsDataURL(SelectedFile);
-            }else{
-                socket.emit('send message', {username:socket.username, msg:msg, fileData:fileData});
-            }
-            $message.val('');
-        });
-
-        //### Socket listener functions ###
-        //Listen for new message from backend
-        socket.on('new message', function(data){
-            
-            var li = '<li>';
-
-            if(data.type == 'all'){
-                var node = '<div class="msg"><div class="msgNormal">'+[data.timestamp]+' <strong>'+data.user+': </strong>'+data.msg + " (" + data.mood + ")";
-            }else if(data.type == 'whisper'){
-                var node = '<div class="msg"><div class="msgWhisper">'+[data.timestamp]+' <strong>'+data.user+': </strong>'+data.msg + " (" + data.mood + ")";
-            }else if(data.type == 'list'){
-                var users = data.msg;
-                var userNames = "";
-                users.forEach(element => {
-                    userNames += "[" + element.id + "] ";
-                });
-                var node = '<div class="msg"><div class="msgList">'+[data.timestamp]+' Online users: '+userNames;
-            }else if(data.type =='connected'){
-                var node = '<div class="msg"><div class="msgCon">'+[data.timestamp]+ " " + data.msg;
-            }else if(data.type =='disconnected'){
-                var node = '<div class="msg"><div class="msgDisCon">'+[data.timestamp]+ " " +data.msg;
-            }
-            //Check for file
-            if(data.fileData != null && data.fileData.file){
-                files.push(data.fileData);
-
-                pos = files.map(function(e) { return e; }).indexOf(data.fileData);
-
-                if(data.fileData.type.includes('image')){
-                    node += '<img class="media" src='+files[pos].file+'>';
-                }
-                else if(data.fileData.type.includes('video')){
-                    node += '<video class="media" controls src='+files[pos].file+'>';
-                }else if(data.fileData.type.includes('audio')){
-                    node += '<audio class="media" controls src='+files[pos].file+'>';
-                }
-                removeFile();
-            }
-
-            node += '</div></div>';
-            li += node + '</li>'
-            $chat.append(li);
-            element.scrollTop = element.scrollHeight;
-        });
-
-        //Listen for users event
-        socket.on('get users', function(data){
-            var html = '';
-            for(i=0; i<data.length; i++){
-                if(data[i].id == socket.username){
-                    html += '<li class="list-group-item"><strong>'+data[i].id+'</strong></li>';
                 }else{
-                    html += '<li class="list-group-item">'+data[i].id+'</li>';
-                }                
+                    socket.emit('send message', {username:socket.username, msg:msg, fileData:fileData});
+                }
+                $message.val('');
+            });
+
+            //### Socket listener functions ###
+            //Listen for new message from backend
+            socket.on('new message', function(data){
+
+                var li = '<li>';
+
+                if(data.type == 'all'){
+                    var node = '<div class="msg"><div class="msgNormal">'+[data.timestamp]+' <strong>'+data.user+': </strong>'+data.msg + " (" + data.mood + ")";
+                }else if(data.type == 'whisper'){
+                    var node = '<div class="msg"><div class="msgWhisper">'+[data.timestamp]+' <strong>'+data.user+': </strong>'+data.msg + " (" + data.mood + ")";
+                }else if(data.type == 'list'){
+                    var users = data.msg;
+                    var userNames = "";
+                    users.forEach(element => {
+                        userNames += "[" + element.id + "] ";
+                    });
+                    var node = '<div class="msg"><div class="msgList">'+[data.timestamp]+' Online users: '+userNames;
+                }else if(data.type =='connected'){
+                    var node = '<div class="msg"><div class="msgCon">'+[data.timestamp]+ " " + data.msg;
+                }else if(data.type =='disconnected'){
+                    var node = '<div class="msg"><div class="msgDisCon">'+[data.timestamp]+ " " +data.msg;
+                }
+                //Check for file
+                if(data.fileData != null && data.fileData.file){
+                    files.push(data.fileData);
+
+                    pos = files.map(function(e) { return e; }).indexOf(data.fileData);
+
+                    if(data.fileData.type.includes('image')){
+                        node += '<img class="media" src='+files[pos].file+'>';
+                    }
+                    else if(data.fileData.type.includes('video')){
+                        node += '<video class="media" controls src='+files[pos].file+'>';
+                    }else if(data.fileData.type.includes('audio')){
+                        node += '<audio class="media" controls src='+files[pos].file+'>';
+                    }
+                    removeFile();
+                }
+
+                node += '</div></div>';
+                li += node + '</li>'
+                $chat.append(li);
+                element.scrollTop = element.scrollHeight;
+            });
+
+            //Listen for users event
+            socket.on('get users', function(data){
+                var html = '';
+                for(i=0; i<data.length; i++){
+                    if(data[i].id == socket.username){
+                        html += '<li class="list-group-item"><strong>'+data[i].id+'</strong></li>';
+                    }else{
+                        html += '<li class="list-group-item">'+data[i].id+'</li>';
+                    }
+                }
+                $users.html(html);
+            });
+
+            //Listen for user already exists event.
+            socket.on('login error', function(data){
+                $userForm.append('<div id="alert"><strong>' + data + '</strong></div>');
+            });
+
+            //Listen for disconnect event. Reset socket's username
+            socket.on('disconnect socket', function(){
+                socket.username = null;
+            });
+
+            // ### Script functions ###
+            //Get file from event and store it in a variable
+            function fileChosen(evnt) {
+                SelectedFile = evnt.target.files[0];
+                var fileType = SelectedFile.type;
+
+                if(fileType.includes('image') || fileType.includes('audio') || fileType.includes('video')){
+                    document.getElementById('NameBox').value = SelectedFile.name;
+                    document.getElementById('delbtn').hidden=false;
+                }else {
+                    //Show error
+                    removeFile();
+                    alert('File type not supported to be sent');
+                }
             }
-            $users.html(html);
-        });
 
-        //Listen for user already exists event.
-        socket.on('login error', function(data){
-            $userForm.append('<div id="alert"><strong>' + data + '</strong></div>');
-        });
-        
-        //Listen for disconnect event. Reset socket's username
-        socket.on('disconnect socket', function(){
-            socket.username = null;
-        });
-
-        // ### Script functions ###
-        //Get file from event and store it in a variable
-        function fileChosen(evnt) {
-            SelectedFile = evnt.target.files[0];
-            var fileType = SelectedFile.type;
-
-            if(fileType.includes('image') || fileType.includes('audio') || fileType.includes('video')){
-                document.getElementById('NameBox').value = SelectedFile.name;
-                document.getElementById('delbtn').hidden=false;
-            }else {
-                //Show error
-                removeFile();
-                alert('File type not supported to be sent');
+            //Remove choosen file
+            function removeFile(){
+                SelectedFile = null;
+                document.getElementById('filebtn').value = "";
+                document.getElementById('NameBox').value = "";
+                document.getElementById('delbtn').hidden=true;
             }
 
+            //Method to trigger invisible button to choose a file
+            function chooseFile(){
+                var button = document.getElementById("filebtn");
+                button.click();
+            }
+
+        });
+
+        //method called from sign in button
+        function showExUserForm(){
+            var $firstLoginArea = $("#firstloginArea");
+            var $loginAreaSignIn = $("#loginAreaSignIn");
+            $firstLoginArea.hide();
+            $loginAreaSignIn.show();
         }
 
-        //Remove choosen file
-        function removeFile(){
-            SelectedFile = null;
-            document.getElementById('filebtn').value = "";
-            document.getElementById('NameBox').value = "";
-            document.getElementById('delbtn').hidden=true;
+        //method calles from sign up button
+        function showNewUserForm(){
+            var $firstloginArea = $("#firstloginArea");
+            var $loginAreaSignUp = $("#loginAreaSignUp");
+            $firstloginArea.hide();
+            $loginAreaSignUp.show();
         }
 
-        //Method to trigger invisible button to choose a file
-        function chooseFile(){
-            var button = document.getElementById("filebtn");
-            button.click();
+        function newBackToStart(){
+            var $firstloginArea = $("#firstloginArea");
+            var $loginAreaSignUp = $("#loginAreaSignUp");
+            $firstloginArea.show();
+            $loginAreaSignUp.hide();
         }
-    });
+        function exBackToStart(){
+            var $firstLoginArea = $("#firstloginArea");
+            var $loginAreaSignIn = $("#loginAreaSignIn");
+            $firstLoginArea.show();
+            $loginAreaSignIn.hide();
+        }
 
-    
+
     </script>
 </body>
 </html>
