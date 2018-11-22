@@ -16,17 +16,13 @@ router.post('/register', auth.optional, (req, res, next) => {
 
   if(!user.username) {
     return res.status(422).json({
-      errors: {
-        username: 'is required',
-      },
+      error: 'Username is required'
     });
   }
 
   if(!user.password) {
     return res.status(422).json({
-      errors: {
-        password: 'is required',
-      },
+      error: 'Username is required'
     });
   }
 
@@ -44,10 +40,8 @@ router.post('/register', auth.optional, (req, res, next) => {
               
       }else{
         //Send error that user already exists
-        return res.status(400).json({          
-          errors: {
-            username: 'Username is already taken.',
-          },
+        return res.status(422).json({          
+          error: 'Username already exists'
         });
       }
     });
@@ -61,17 +55,13 @@ router.post('/login', auth.optional, (req, res, next) => {
 
   if(!user.username) {
     return res.status(422).json({
-      errors: {
-        username: 'is required',
-      },
+        error: 'Username is required'
     });
   }
 
   if(!user.password) {
     return res.status(422).json({
-      errors: {
-        password: 'is required',
-      },
+        error: 'Password is required'
     });
   }
 
@@ -87,7 +77,9 @@ router.post('/login', auth.optional, (req, res, next) => {
       return res.json({ user: user.toAuthJSON() });
     }
 
-    return res.status(400).info;
+    return res.status(422).json({
+      error: 'Username or Password incorrect'
+    });
   })(req, res, next);
 });
 

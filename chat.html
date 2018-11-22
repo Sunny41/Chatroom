@@ -104,6 +104,7 @@
             var $userFormNEW = $('#NewUser');
             var $userFormOLD = $('#existingUser');
             var $loginArea =$('#loginArea');
+            var $loginAreaSignUp = $('#loginAreaSignUp');
             var $messageArea = $('#messageArea');
             var $users = $('#users');
             var $username = $('#username');
@@ -141,13 +142,11 @@
                 e.preventDefault();
 
                 //Clear shown login error message
-                var parentNode = document.getElementById("loginArea");
                 var node = document.getElementById("alert");
                 if(node != null){
-                    parentNode.removeChild(node);
+                    $userFormNEW.removeChild(node);
                 }
 
-                console.log("USERNAME " + $usernameNew.val() + " " + "PW " + $passwordNEW.val());
                 fetch("/api/chat/register", {
                     method: "POST",
                     headers: {
@@ -165,7 +164,11 @@
                     var data = JSON.parse(body);
                     
                     //USername is present, when creating a new user succeeded
-                    if(data.user.username){
+                    if(data.error){
+                        //Show error
+                        alert(data.error);
+                    }
+                    else if(data.user.username){
                        socket.emit('new user', $usernameNew.val(), function(data){
                             if(data!=false){
                                 $loginArea.hide();
@@ -205,7 +208,11 @@
                     var data = JSON.parse(body);
                     
                     //Username is provided, when log in succeeded
-                    if(data.user.username){
+                    if(data.error){
+                        //Show error
+                        alert(data.error);
+                    }
+                    else if(data.user.username){
                         socket.emit('new user', {username:data.user.username, token:data.user.token}, function(data){
                             if(data!=false){
                                 $loginArea.hide();
