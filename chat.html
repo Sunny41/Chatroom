@@ -1,4 +1,4 @@
-<!--index html-->
+<!--chat html-->
 <!--author: Sonja Czernotzky 742284, Jannik Renner 752776-->
 
 <!DOCTYPE html>
@@ -10,8 +10,8 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <script src="./socket.io.js"></script>
-    <link href="style.css" rel="stylesheet">
+    <script src="/./socket.io.js"></script>
+    <link href="/style.css" rel="stylesheet">
     <style>
         #messageArea{
             display: none;
@@ -107,11 +107,13 @@
             var $messageArea = $('#messageArea');
             var $users = $('#users');
             var $username = $('#username');
+            var $usernameNew = $('#usernameNEW');
             var $chatArea = $('#chatArea');
             var $passwordEx=$("#passwordOLD");
             var $passwordNEW = $("#passwordNEW");
             var element = document.getElementById("messages");
 
+            //Files
             var files = [];
             var pos;
             var SelectedFile;
@@ -130,11 +132,10 @@
                 var classCycle=['image1', 'image2', 'image3', 'image4', 'image5', 'image6'];
                 var randomNumber = Math.floor(Math.random() * classCycle.length);
                 var classToAdd = classCycle[randomNumber];
-                $('body').addClass(classToAdd);
+                $('body').addClass(classToAdd);                
             });
 
             // ### Functions for global variables ###
-
             //Submit functions for a new user
             $userFormNEW.submit(function(e){
                 e.preventDefault();
@@ -146,32 +147,79 @@
                     parentNode.removeChild(node);
                 }
 
-                socket.emit('existing user', $username.val(), $passwordEx.val(), function(data){
-                    if(data!=false){
-                        $loginArea.hide();
-                        $messageArea.show();
-                        $chatArea.show();
-                        socket.username = data;
-                        $username.val('');
+                console.log("USERNAME " + $usernameNew.val() + " " + "PW " + $passwordNEW.val());
+                fetch("/api/chat/register", {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({                    
+                        "user": {
+                            "username": $usernameNew.val(),
+                            "password": $passwordNEW.val()
+                        }                    
+                    })
+                })
+                .then(response => response.text())
+                .then((body) => {
+                    var data = JSON.parse(body);
+                    
+                    //USername is present, when creating a new user succeeded
+                    if(data.user.username){
+                       socket.emit('new user', $usernameNew.val(), function(data){
+                            if(data!=false){
+                                $loginArea.hide();
+                                $messageArea.show();
+                                $chatArea.show();
+                                socket.username = data;
+                                $usernameNew.val('');
+                                $passwordNEW.val('');
+                            }
+                        }); 
                     }
+                    
                 });
             });
 
-            //Submit function for existing User
+            //Login function for existing User
             $userFormOLD.submit(function(e){
                 e. preventDefault();
 
-                socket.emit('new user', $username.val(), $passwordNEW.val(), function(data){
-                    if(data!=false){
-                        $loginArea.hide();
-                        $messageArea.show();
-                        $chatArea.show();
-                        socket.username = data;
-                        $username.val('');
+                fetch("/api/chat/login", {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                    
+                    "user": {
+                        "username": $username.val(),
+                        "password": $passwordEx.val()
                     }
+                    
+                    })
+                })
+                .then(response => response.text())
+                .then((body) => {
+                    
+                    var data = JSON.parse(body);
+                    
+                    //Username is provided, when log in succeeded
+                    if(data.user.username){
+                        socket.emit('new user', {username:data.user.username, token:data.user.token}, function(data){
+                            if(data!=false){
+                                $loginArea.hide();
+                                $messageArea.show();
+                                $chatArea.show();
+                                socket.username = data;
+                                $username.val('');
+                            }
+                        });
+                    }
+                    
                 });
-
             });
+
             //Submit function to send a new message
             $messageForm.submit(function(e){
                 e.preventDefault();
@@ -259,7 +307,7 @@
 
             //Listen for user already exists event.
             socket.on('login error', function(data){
-                $userForm.append('<div id="alert"><strong>' + data + '</strong></div>');
+                $userFormNEW.append('<div id="alert"><strong>' + data + '</strong></div>');
             });
 
             //Listen for disconnect event. Reset socket's username

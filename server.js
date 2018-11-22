@@ -1,25 +1,48 @@
 //index.js
 //author: Jannik Renner 752776, Sonja Czernotzky 742284
 
+//General requirements
 var express = require('express');
 var bodyParser = require('body-parser');
 var request = require('request');
+var session = require('express-session');
+var cors = require('cors');
+var mongoose = require('mongoose');
+var fs = require('fs');
+var path = require('path');
+var auth = require('./routes/auth');
 
+//Model requirements
+require('./models/Users');
+require('./config/passport');
+
+//Creating app
 var app = express();
 var server = require('http').createServer(app);
 var io = require('socket.io').listen(server);
-var fs = require('fs');
-var path = require('path');
 
+//App use
 app.use(express.static(__dirname + '/'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json())
+app.use(session({ secret: 'passport-tutorial', cookie: { maxAge: 60000 }, resave: false, saveUninitialized: false }));
+app.use(require('./routes'));
 
-var users = [];
-var connections = [];
+//Connect to mongoDB
+mongoose.connect('mongodb://jannikrenner:mLbjr92@ds223578.mlab.com:23578/chatapp');
+var db = mongoose.connection;
+db.on("error", console.error.bind(console, "Can't connect to mongoDB"));
+db.once("open", function (callback) {
+    console.log("Connection to mongoDB succeeded.");
+});
 
+//Server listening and running
 server.listen(process.env.PORT || 3030);
 console.log('Server running on port %s', server.address().port);
+
+//Globals
+var users = [];
+var connections = [];
 
 io.sockets.on('connection', function(socket) {
     connect(socket);
@@ -36,19 +59,21 @@ io.sockets.on('connection', function(socket) {
 
     //New User
     socket.on('new user', function (data, callback) {
-        socket.username = data;
+        socket.username = data.username;
         var user = {
-            id:socket.username
+            id:socket.username,
+            token:data.token
         };
-
+        
         //Check if username matches regex. No whitespace is allowed. No html tags allowed.
         var regEx1 = new RegExp("[ \r\n\t\f ]");
         var regEx2 = new RegExp("<([a-z]+) *[^/]*?>");
-        if(regEx1.test(data) || regEx2.test(data)){
+        if(regEx1.test(data.username) || regEx2.test(data.username)){
             socket.emit("login error", "Please enter a single word for the username.")
         }else{
-            //Check if user already exists
+            //Username is provided, when log in succeeded
             if (userAlreadyExists(user.id)) {
+                socket.username = null;
                 socket.emit("login error", "The current username already exists. Choose another one instead.");
                 callback(false);
                 return;
@@ -60,11 +85,13 @@ io.sockets.on('connection', function(socket) {
             }
         }        
     });
+
     //Add connection to connections array
     function connect(socket){
         connections.push(socket);
         console.log('Connected: %s sockets connected', connections.length);
     }
+
     //Remove user from users array and remove connection from connections array. Update users.
     function disconnect(socket) {
         var user;
