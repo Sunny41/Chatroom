@@ -1,5 +1,5 @@
 ---
 applications:
-- name: Chatroom
+- name: NerdyChat
   memory: 512M
   instances: 1
