@@ -10,7 +10,7 @@ var cors = require('cors');
 var mongoose = require('mongoose');
 var fs = require('fs');
 var path = require('path');
-var auth = require('./routes/auth');
+var auth = require('./auth');
 
 //Model requirements
 require('./models/Users');
@@ -26,7 +26,7 @@ app.use(express.static(__dirname + '/'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json())
 app.use(session({ secret: 'passport-tutorial', cookie: { maxAge: 60000 }, resave: false, saveUninitialized: false }));
-app.use(require('./routes'));
+app.use(require('./chat'));
 
 //Connect to mongoDB
 mongoose.connect('mongodb://jannikrenner:mLbjr92@ds223578.mlab.com:23578/chatapp');

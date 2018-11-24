@@ -1,13 +1,13 @@
 const mongoose = require('mongoose');
 const passport = require('passport');
 const router = require('express').Router();
-const auth = require('../auth');
+const auth = require('./auth');
 const Users = mongoose.model('Users');
 var path = require('path');
 
 //Get chat html
 router.get('/', (req, res, next) => {
-    res.sendFile(path.join(__dirname + '/../../chat.html'));
+    res.sendFile(path.join(__dirname + '/chat.html'));
 });
 
 //POST regisgter new user
