@@ -147,7 +147,7 @@
                     $userFormNEW.removeChild(node);
                 }
 
-                fetch("/api/chat/register", {
+                fetch("/register", {
                     method: "POST",
                     headers: {
                         'Content-Type': 'application/json'
@@ -188,7 +188,7 @@
             $userFormOLD.submit(function(e){
                 e. preventDefault();
 
-                fetch("/api/chat/login", {
+                fetch("/login", {
                     method: "POST",
                     headers: {
                         'Content-Type': 'application/json'
@@ -261,9 +261,9 @@
                 var li = '<li>';
 
                 if(data.type == 'all'){
-                    var node = '<div class="msg"><div class="msgNormal">'+[data.timestamp]+' <strong>'+data.user+': </strong>'+data.msg + " (" + data.mood + ")";
+                    var node = '<div class="msg"><div class="msgNormal">'+[data.timestamp]+' <strong>'+data.user+': </strong>'+data.msg;
                 }else if(data.type == 'whisper'){
-                    var node = '<div class="msg"><div class="msgWhisper">'+[data.timestamp]+' <strong>'+data.user+': </strong>'+data.msg + " (" + data.mood + ")";
+                    var node = '<div class="msg"><div class="msgWhisper">'+[data.timestamp]+' <strong>'+data.user+': </strong>'+data.msg;
                 }else if(data.type == 'list'){
                     var users = data.msg;
                     var userNames = "";

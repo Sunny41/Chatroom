@@ -149,43 +149,23 @@ io.sockets.on('connection', function(socket) {
                 if(data.msg.startsWith("/list")){   //Check if the massage is a list command.
                     socket.emit('new message', {type:'list', msg:users, fileData:data.fileData, user:socket.username, timestamp:timestamp});
                 }else {
-                    //get mood
-                    var clientServerOptions = {
-                        uri: 'https://toneanalyzer.eu-de.mybluemix.net/tone',
-                        body: JSON.stringify({
-                            texts: [data.msg, data.msg]
-                        }),
-                        method: 'POST',
-                        headers: {
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json',
-                            'mode': 'cors'
+                    var timestamp = createTimestamp();
+
+                    if(data.msg.startsWith("/whisper")){  //CHeck if the message is a whisper command.
+                        //Split username from message
+                        var res = data.msg.split(":");
+                        var username = res[1].split(" ", 1);
+                        var msg = res[1].slice(username[0].length, res[1].length);
+                        //Get socket related to username
+                        var whisper_socket = connections.find(socket => socket.username == username);
+                        //Send message to self and whisper user
+                        if(whisper_socket){
+                            whisper_socket.emit('new message',  {type:'whisper', msg:msg, fileData:data.fileData, user:socket.username, timestamp:timestamp});
+                            socket.emit('new message',  {type:'whisper', msg:msg, fileData:data.fileData, user:socket.username, timestamp:timestamp});
                         }
+                    }else{  //The message is no specific command. Send it to all users.
+                        io.sockets.emit('new message', {type:'all', msg:data.msg, fileData:data.fileData, user:socket.username, timestamp:timestamp});
                     }
-                    request(clientServerOptions, function (error, response) {
-                        
-                        var result = JSON.parse(response.body);
-                        var mood = result.mood;
-
-                        //Proceed with sending message to clients
-                        var timestamp = createTimestamp();
-
-                        if(data.msg.startsWith("/whisper")){  //CHeck if the message is a whisper command.
-                            //Split username from message
-                            var res = data.msg.split(":");
-                            var username = res[1].split(" ", 1);
-                            var msg = res[1].slice(username[0].length, res[1].length);
-                            //Get socket related to username
-                            var whisper_socket = connections.find(socket => socket.username == username);
-                            //Send message to self and whisper user
-                            if(whisper_socket){
-                                whisper_socket.emit('new message',  {type:'whisper', msg:msg, mood:mood, fileData:data.fileData, user:socket.username, timestamp:timestamp});
-                                socket.emit('new message',  {type:'whisper', msg:msg, mood:mood, fileData:data.fileData, user:socket.username, timestamp:timestamp});
-                            }
-                        }else{  //The message is no specific command. Send it to all users.
-                            io.sockets.emit('new message', {type:'all', msg:data.msg, mood:mood, fileData:data.fileData, user:socket.username, timestamp:timestamp});
-                        }
-                    });
                 }             
             }           
         }        
