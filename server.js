@@ -11,6 +11,7 @@ var mongoose = require('mongoose');
 var fs = require('fs');
 var path = require('path');
 var auth = require('./auth');
+const helmet = require('helmet');
 
 //Model requirements
 require('./models/Users');
@@ -23,10 +24,20 @@ var io = require('socket.io').listen(server);
 
 //App use
 app.use(express.static(__dirname + '/'));
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json())
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false, limit:'10mb' }));
 app.use(session({ secret: 'passport-tutorial', cookie: { maxAge: 60000 }, resave: false, saveUninitialized: false }));
 app.use(require('./chat'));
+app.use(helmet());
+app.enable('trust proxy');
+app.use(function(req, res, next){
+    if(req.secure || process.env.BLUEMIX_REGION == undefined){
+        next();
+    }else{
+        conosle.log('redirecting to https');
+        res.redirect('https://' + req.headers.host + req.url);
+    }
+});
 
 //Connect to mongoDB
 mongoose.connect('mongodb://jannikrenner:mLbjr92@ds223578.mlab.com:23578/chatapp');
@@ -71,18 +82,10 @@ io.sockets.on('connection', function(socket) {
         if(regEx1.test(data.username) || regEx2.test(data.username)){
             socket.emit("login error", "Please enter a single word for the username.")
         }else{
-            //Username is provided, when log in succeeded
-            if (userAlreadyExists(user.id)) {
-                socket.username = null;
-                socket.emit("login error", "The current username already exists. Choose another one instead.");
-                callback(false);
-                return;
-            }else {
-                users.push(user);
-                notifyUserConnected(user.id);
-                callback(user.id);
-                updateUsers();
-            }
+            users.push(user);
+            notifyUserConnected(user.id);
+            callback(user.id);
+            updateUsers();
         }        
     });
 

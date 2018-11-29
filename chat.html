@@ -57,7 +57,6 @@
                     <h2>Enter a new Username and new Password</h2>
                     <input type="text" id="usernameNEW" style="width: 10em" placeholder="Username"/><br>
                     <input type="password" id="passwordNEW" style="width: 10em" placeholder="Password"/><br>
-                    <input type="password" id="passwordAGAIN" style="width: 10em" placeholder="repeat Password"/><br>
                     <input type="file" id="photo"  class="btn btn-primary" value="Choose your Profile Picture"><br>
                     <input type="submit" class="btn btn-primary" value="Sign me up!" id="newU"/>
                 </form>
@@ -118,6 +117,7 @@
             var files = [];
             var pos;
             var SelectedFile;
+            var SelectedProfilePicture;
 
             // ## Event listeners ###
             //window.addEventListener("load", Ready);
@@ -125,6 +125,7 @@
             //function Ready(){
             $(document).ready(function(){
                 document.getElementById('filebtn').addEventListener('change', fileChosen);
+                document.getElementById('photo').addEventListener('change', profilePictureChosen);
                 document.getElementById('chooseFileBtn').addEventListener('click', chooseFile);
                 document.getElementById('delbtn').addEventListener('click',removeFile);
                 document.getElementById('delbtn').hidden=true;
@@ -141,47 +142,102 @@
             $userFormNEW.submit(function(e){
                 e.preventDefault();
 
-                //Clear shown login error message
-                var node = document.getElementById("alert");
-                if(node != null){
-                    $userFormNEW.removeChild(node);
+                //Get profile picture's binary data
+                var reader = new FileReader();
+                var fileData ={};
+                if(SelectedProfilePicture){
+                    var reader = new FileReader();
+                    reader.readAsDataURL(SelectedProfilePicture);
+                    reader.onload = function(evt){
+                        fileData.fileName = SelectedProfilePicture.name;
+                        fileData.type = SelectedProfilePicture.type;
+                        fileData.size = SelectedProfilePicture.size;
+
+                        var arrayBuffer = this.result;
+
+                        console.log(arrayBuffer);
+                        fileData.file = arrayBuffer;
+
+                       //POST with profile picture
+                        fetch("/register", {
+                            method: "POST",
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({                    
+                                "user": {
+                                    "username": $usernameNew.val(),
+                                    "password": $passwordNEW.val(),
+                                    "profilePicture": fileData
+                                }                    
+                            })
+                        })
+                        .then(response => response.text())
+                        .then((body) => {
+                            var data = JSON.parse(body);
+                            
+                            //USername is present, when creating a new user succeeded
+                            if(data.error){
+                                //Show error
+                                alert(data.error);
+                            }
+                            else if(data.user.username){
+                            socket.emit('new user', $usernameNew.val(), function(data){
+                                    if(data!=false){
+                                        $loginArea.hide();
+                                        $messageArea.show();
+                                        $chatArea.show();
+                                        socket.username = data;
+                                        $usernameNew.val('');
+                                        $passwordNEW.val('');
+                                    }
+                                }); 
+                            }
+                            
+                        });
+
+                    };
+                }else{
+                    //POST without profile picture
+                    fetch("/register", {
+                            method: "POST",
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({                    
+                                "user": {
+                                    "username": $usernameNew.val(),
+                                    "password": $passwordNEW.val(),
+                                    "profilePicture": null
+                                }                    
+                            })
+                        })
+                        .then(response => response.text())
+                        .then((body) => {
+                            var data = JSON.parse(body);
+                            
+                            //USername is present, when creating a new user succeeded
+                            if(data.error){
+                                //Show error
+                                alert(data.error);
+                            }
+                            else if(data.user.username){
+                                socket.emit('new user', {username:data.user.username}, function(data){
+                                    if(data!=false){
+                                        $loginArea.hide();
+                                        $messageArea.show();
+                                        $chatArea.show();
+                                        socket.username = data;
+                                        $usernameNew.val('');
+                                        $passwordNEW.val('');
+                                    }
+                                }); 
+                            }
+                            
+                        });
                 }
 
-                fetch("/register", {
-                    method: "POST",
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({                    
-                        "user": {
-                            "username": $usernameNew.val(),
-                            "password": $passwordNEW.val()
-                        }                    
-                    })
-                })
-                .then(response => response.text())
-                .then((body) => {
-                    var data = JSON.parse(body);
-                    
-                    //USername is present, when creating a new user succeeded
-                    if(data.error){
-                        //Show error
-                        alert(data.error);
-                    }
-                    else if(data.user.username){
-                       socket.emit('new user', $usernameNew.val(), function(data){
-                            if(data!=false){
-                                $loginArea.hide();
-                                $messageArea.show();
-                                $chatArea.show();
-                                socket.username = data;
-                                $usernameNew.val('');
-                                $passwordNEW.val('');
-                            }
-                        }); 
-                    }
-                    
-                });
+                
             });
 
             //Login function for existing User
@@ -338,17 +394,37 @@
                 }
             }
 
+            //Get profile picture from event and store it in a variable
+            function profilePictureChosen(evnt) {
+                SelectedProfilePicture = evnt.target.files[0];
+                var fileType = SelectedProfilePicture.type;
+                
+                if(!fileType.includes('image')){
+                    //Show error
+                    removeFile();
+                    alert('File type not supported to be sent');
+                }
+            }
+
             //Remove choosen file
             function removeFile(){
                 SelectedFile = null;
                 document.getElementById('filebtn').value = "";
                 document.getElementById('NameBox').value = "";
                 document.getElementById('delbtn').hidden=true;
+                selectedProfilePicture = null;
+                document.getElementById('photo').value = "";
             }
 
             //Method to trigger invisible button to choose a file
             function chooseFile(){
                 var button = document.getElementById("filebtn");
+                button.click();
+            }
+
+            //Method to trigger invisible button to choose a profile picture
+            function chooseProfilePicture(){
+                var button = document.getElementById("photo");
                 button.click();
             }
 

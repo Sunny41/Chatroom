@@ -17,11 +17,14 @@
     "express": "*",
     "express-jwt": "^5.3.1",
     "express-session": "^1.15.6",
+    "helmet": "^3.15.0",
     "mongoose": "^5.3.13",
     "passport": "^0.4.0",
     "passport-local": "^1.0.0",
     "request": "^2.88.0",
-    "socket.io": "^2.1.1"
+    "socket.io": "^2.1.1",
+    "socket.io-stream": "^0.9.1",
+    "watson-developer-cloud": "^3.13.0"
   },
   "author": "Sonja, Jannik",
   "license": "UNLICENSED",
