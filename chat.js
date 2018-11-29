@@ -96,6 +96,7 @@ router.post('/register', auth.optional, (req, res, next) => {
       if(!existingUser) {
         const finalUser = new Users(user);
         finalUser.setPassword(user.password);
+        res.setHeader("Content-Security-Policy", "script-src 'self' https://nerdychat.mybluemix.net/");
         return finalUser.save()
           .then(() => res.json({ user: finalUser.toAuthJSON() 
         }));
@@ -135,7 +136,8 @@ router.post('/login', auth.optional, (req, res, next) => {
     if(passportUser) {
       const user = passportUser;
       user.token = passportUser.generateJWT();
-      
+
+      res.setHeader("Content-Security-Policy", "script-src 'self' https://nerdychat.mybluemix.net/");
       return res.json({ user: user.toAuthJSON() });
     }
 
