@@ -43,9 +43,9 @@
             <!-- login Container existing user-->
             <div id="loginAreaSignIn">
                 <h2>Enter Username and Password</h2>
-                <form id="existingUser">
+                <form id="existingUser" autocomplete="off">
                     <input type="text" id="username" style="width: 10em" placeholder="Username"/>
-                    <input type="password" id="passwordOLD" style="width: 10em" placeholder="Password"/>
+                    <input type="password" id="passwordOLD" autocomplete="off" style="width: 10em" placeholder="Password"/>
                     <input type="submit" class="btn btn-primary" value="Login" id="existingU"/>
                 </form>
                 <input type="submit" class="btn btn-primary" value="Back" id="exBack" onclick="exBackToStart();">
@@ -53,10 +53,10 @@
 
             <!-- login Container new User -->
             <div id="loginAreaSignUp">
-                <form id="NewUser">
+                <form id="NewUser" autocomplete="off">
                     <h2>Enter a new Username and new Password</h2>
                     <input type="text" id="usernameNEW" style="width: 10em" placeholder="Username"/><br>
-                    <input type="password" id="passwordNEW" style="width: 10em" placeholder="Password"/><br>
+                    <input type="password" id="passwordNEW" autocomplete="off" style="width: 10em" placeholder="Password"/><br>
                     <input type="file" id="photo"  class="btn btn-primary" value="Choose your Profile Picture"><br>
                     <input type="submit" class="btn btn-primary" value="Sign me up!" id="newU"/>
                 </form>

@@ -97,6 +97,7 @@ router.post('/register', auth.optional, (req, res, next) => {
         const finalUser = new Users(user);
         finalUser.setPassword(user.password);
         res.setHeader("Content-Security-Policy", "script-src 'self' https://nerdychat.mybluemix.net/");
+        res.setHeader("X-Content-Type-Options", "nosniff");
         return finalUser.save()
           .then(() => res.json({ user: finalUser.toAuthJSON() 
         }));
@@ -138,6 +139,7 @@ router.post('/login', auth.optional, (req, res, next) => {
       user.token = passportUser.generateJWT();
 
       res.setHeader("Content-Security-Policy", "script-src 'self' https://nerdychat.mybluemix.net/");
+      res.setHeader("X-Content-Type-Options", "nosniff");
       return res.json({ user: user.toAuthJSON() });
     }
 
