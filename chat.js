@@ -1,3 +1,7 @@
+//chat.js
+//author: Jannik Renner 752776, Sonja Czernotzky 742284
+
+
 const mongoose = require('mongoose');
 const passport = require('passport');
 const router = require('express').Router();

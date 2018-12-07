@@ -1,4 +1,4 @@
-//index.js
+//server.js
 //author: Jannik Renner 752776, Sonja Czernotzky 742284
 
 //General requirements
@@ -12,6 +12,7 @@ var fs = require('fs');
 var path = require('path');
 var auth = require('./auth');
 const helmet = require('helmet');
+var redis = require('socket.io-redis');
 
 //Model requirements
 require('./models/Users');
@@ -21,6 +22,7 @@ require('./config/passport');
 var app = express();
 var server = require('http').createServer(app);
 var io = require('socket.io').listen(server);
+io.adapter(redis({ host: process.env.REDIS_ENDPOINT, port: 6379 }));
 
 //App use
 app.use(express.static(__dirname + '/'));
