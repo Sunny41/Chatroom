@@ -12,7 +12,7 @@ var fs = require('fs');
 var path = require('path');
 var auth = require('./auth');
 const helmet = require('helmet');
-var redis = require('socket.io-redis');
+//var redis = require('socket.io-redis');
 
 //Model requirements
 require('./models/Users');
@@ -22,7 +22,8 @@ require('./config/passport');
 var app = express();
 var server = require('http').createServer(app);
 var io = require('socket.io').listen(server);
-io.adapter(redis({ host: process.env.REDIS_ENDPOINT, port: 6379 }));
+//const redisAdapter = require('socket.io-redis');
+//io.adapter(redisAdapter({ host: 'localhost', port: 6379 }));
 
 //App use
 app.use(express.static(__dirname + '/'));

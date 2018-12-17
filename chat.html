@@ -96,7 +96,10 @@
     <script>
 
         $(function(){
-            var socket = io.connect();
+            var socket = io('https://nerdychat.mybluemix.net', {transports: ['websocket']});
+            socket.on('connect', function () {
+                console.log('connected!');
+            });
             var $messageForm = $('#messageForm');
             var $message = $('#message');
             var $chat = $('#messages');
